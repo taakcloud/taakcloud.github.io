@@ -1,0 +1,16 @@
+<header class="site-header" role="banner">
+
+  <div class="wrapper">
+    {%- assign default_paths = site.pages | map: "path" -%}
+    {%- assign page_paths = site.header_pages | default: default_paths -%}
+    <section class="top-bar">
+      <div class="logo"><a href="{{ site.baseurl }}/">{% include logo.html %}</a></div>
+      {% include navigation.html %}
+    </section>
+    <section class="hero_search">
+      <h1>Docs</h1>
+      <p>Everything you need to know about using Taak software and APIs.</p>
+      {% include search.html %}
+    </section>
+  </div>
+</header>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="{{ page.lang | default: site.lang | default: " en" }}">
+  <head>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://kit.fontawesome.com/500f51af92.js" crossorigin="anonymous"></script>
+  </head>
+{%- include head.html -%}
+
+<body class="{{ page.body_class }}">
+
+  {%- include header.html -%}
+
+  <main class="page-content content" aria-label="Content">
+    <div class="wrapper">
+      {{ content }}
+    </div>
+  </main>
+
+  {%- include footer.html -%}
+  <script>
+    $(function() {
+      $('a[href*=\\#]').not(".no-smooth").on('click', function(event){
+        var el = $(this.hash);
+        if (el.length > 0) {
+          // event.preventDefault();
+          $('html,body').animate({scrollTop:$(this.hash).offset().top - 50}, 500);
+        }
+      });
+
+      $('svg').click(function() {
+        $(this).parent('form').submit();
+      });
+    });
+
+    document.getElementById("open-nav").addEventListener("click", function (event) {
+      event.preventDefault();
+      document.body.classList.toggle("nav-open");
+    });
+  </script>
+</body>
+
+</html>
