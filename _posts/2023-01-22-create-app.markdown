@@ -20,7 +20,10 @@ Go to <a href='https://taakcloud.com/apps/' target='_blank'>https://taakcloud.co
 
 ## Step 2
 
-After login you should be able te see following screenshot: ![New app button]({{ site.baseUrl }}/assets/img/create-app/screen1.png)
+After login you should be able te see following screenshot:
+
+![New app button]({{ site.baseUrl }}/assets/img/create-app/screen1.png "Apps page")
+{:.tofigure}
 
 and select _+ New app_ button.
 
@@ -28,6 +31,7 @@ and select _+ New app_ button.
 
 Type a name, and click _save_ button.
 
-Tha's all, you did create a new app!
+Tha's all, new app created:
 
-![Success screen]({{ site.baseUrl }}/assets/img/create-app/screen2.png)
+![Success screen]({{ site.baseUrl }}/assets/img/create-app/screen2.png "App selected")
+{:.tofigure}
