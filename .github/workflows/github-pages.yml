@@ -1,7 +1,9 @@
 name: Build and deploy Taak docs
 
 on:
-  push
+  push:
+    branches:
+      - main
 
 jobs:
   jekyll:
@@ -20,5 +22,5 @@ jobs:
     # Standard usage
     - uses:  helaili/jekyll-action@v2
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.GH_TOKEN }}
         target_branch: 'gh-pages'
