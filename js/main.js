@@ -102,3 +102,27 @@ $('.tofigure').children('img').each(function() {
 	caption = $(this).attr('title');
 	$(this).after('<figcaption class="caption">' + caption + '</figcaption>');
 });
+
+// Copy to Clipboard
+var codeBlocks = document.querySelectorAll('figure.highlight');
+
+codeBlocks.forEach(function (codeBlock) {
+  var  Button = document.createElement('button');
+   Button.className = 'copy';
+   Button.type = 'button';
+   Button.ariaLabel = 'Copy code to clipboard';
+   Button.innerText = 'Copy';
+
+  codeBlock.append( Button);
+
+   Button.addEventListener('click', function () {
+    var code = codeBlock.querySelector('code').innerText.trim();
+    window.navigator.clipboard.writeText(code);
+
+     Button.innerText = 'Copied';
+
+    setTimeout(function () {
+       Button.innerText = 'Copy';
+    }, 4000);
+  });
+});

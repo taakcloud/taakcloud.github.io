@@ -1,0 +1,47 @@
+figure.highlight {
+  position: relative;
+
+  // override skeleton styles
+  > figure {
+    border: 0;
+    overflow-x: auto;
+    padding-right: 0;
+    padding-left: 0;
+  }
+
+  &.highlight {
+    border-left: 15px solid #35383c;
+    color: #c1c2c3;
+    overflow: auto;
+    white-space: pre;
+    word-wrap: normal;
+
+    &,
+    figure {
+      background-color: #222;
+    }
+  }
+
+  // copy code to clipboard
+  .copy  {
+    color: #4AF626;
+    position: absolute;
+    right: 0.2rem;
+    top: 0.2rem;
+    opacity: 0;
+
+    &:active,
+    &:focus,
+    &:hover {
+      background: rgba(0, 0, 0, 0.7);
+      opacity: 1;
+    }
+  }
+
+  &:active .copy ,
+  &:focus .copy ,
+  &:hover .copy  {
+    background: rgba(0, 0, 0, 0.7);
+    opacity: 1;
+  }
+}

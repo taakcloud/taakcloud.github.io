@@ -83,4 +83,7 @@ jekyll-archives:
 
 toc:
   min_level: 2 # default: 1
-  max_level: 3 # default: 6
+  max_level: 2 # default: 6
+
+markdown: kramdown
+highlighter: rouge
