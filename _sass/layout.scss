@@ -78,4 +78,11 @@ figcaption {
 
 .highlight pre {
   white-space: pre;
+  margin-top: 0;
+  margin-bottom: 0;
+  min-width: 900px;
+}
+
+.right {
+  text-align: right;
 }

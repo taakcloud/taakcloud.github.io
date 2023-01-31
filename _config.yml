@@ -82,8 +82,8 @@ jekyll-archives:
   enabled: ['categories']
 
 toc:
-  min_level: 2 # default: 1
-  max_level: 2 # default: 6
+  min_level: 1 # default: 1
+  max_level: 3 # default: 6
 
 markdown: kramdown
 highlighter: rouge
