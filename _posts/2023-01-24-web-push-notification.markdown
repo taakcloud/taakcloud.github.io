@@ -84,3 +84,7 @@ Following code is for React library, but basically must work in both TypeScript 
 </details>
 [WebPushSubscriptionList.tsx <i class="fa-solid fa-arrow-up-right-from-square"></i>](https://github.com/taakcloud/taak-web-push-example/blob/main/src/components/WebPushSubscriptionList.tsx#L39-L47){:target="_blank"}{:rel="noopener noreferrer"}
 {: .right}
+
+### Test suite
+
+[index.test.ts <i class="fa-solid fa-arrow-up-right-from-square"></i>](https://github.com/taakcloud/taak-sdk-js/blob/main/src/web-push/index.test.ts){:target="_blank"}{:rel="noopener noreferrer"}
