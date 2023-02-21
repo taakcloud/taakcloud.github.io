@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="https://docs.taakcloud.com/feed.xml" rel="self" type="application/atom+xml" /><link href="https://docs.taakcloud.com/" rel="alternate" type="text/html" /><updated>2023-02-21T08:56:45+00:00</updated><id>https://docs.taakcloud.com/feed.xml</id><title type="html">Taak</title><subtitle>Docs</subtitle><entry><title type="html">Web Push Notification</title><link href="https://docs.taakcloud.com/products/web-push-notification/" rel="alternate" type="text/html" title="Web Push Notification" /><published>2023-01-24T08:08:00+00:00</published><updated>2023-01-24T08:08:00+00:00</updated><id>https://docs.taakcloud.com/products/web-push-notification</id><content type="html" xml:base="https://docs.taakcloud.com/products/web-push-notification/"><![CDATA[<p>Send web push notification with ease and zero cost on scale.</p>
+
+<h2 id="prerequisites">Prerequisites</h2>
+
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" checked="checked" />Select your app/workspace, see <a href="/getting-started/create-app/">Create app</a></li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" checked="checked" />Get your API Key, see <a href="/getting-started/generate-api-key/">Generate API Key</a></li>
+</ul>
+
+<h2 id="taak-sdk-js">Taak SDK JS</h2>
+
+<p>We use <a href="https://github.com/taakcloud/taak-sdk-js" target="_blank" rel="noopener noreferrer">Taak SDK JS <i class="fa-solid fa-arrow-up-right-from-square"></i></a> as client side library. Full source code is available at <a href="https://github.com/taakcloud/taak-web-push-example" target="_blank" rel="noopener noreferrer">here <i class="fa-solid fa-arrow-up-right-from-square"></i></a></p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">npm i taak-sdk</code></pre></figure>
+
+<p><br /></p>
+
+<h3 id="check-permission">Check permission</h3>
+
+<p>Following code is for React library, but basically must work in both TypeScript and JavaScript projects.</p>
+<details open=""><summary>Check if permission given</summary>
+
+<figure class="highlight"><pre><code class="language-ts" data-lang="ts">  <span class="kd">const</span> <span class="nx">checkIfPermissionGiven</span> <span class="o">=</span> <span class="k">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="na">res</span><span class="p">:</span> <span class="nx">TaakResponse</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">taakSdkClient</span><span class="p">.</span><span class="nx">checkIfPermissionGiven</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">res</span><span class="p">.</span><span class="nx">status</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">res</span><span class="p">.</span><span class="nx">data</span> <span class="o">===</span> <span class="dl">'</span><span class="s1">denied</span><span class="dl">'</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">presentToast</span><span class="p">({</span>
+          <span class="na">message</span><span class="p">:</span> <span class="s2">`Permission denied, you need to unblock </span><span class="p">${</span><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">origin</span><span class="p">}</span><span class="s2"> in your browser to receive notifications.`</span><span class="p">,</span>
+          <span class="na">duration</span><span class="p">:</span> <span class="mi">3000</span><span class="p">,</span>
+          <span class="na">color</span><span class="p">:</span> <span class="dl">'</span><span class="s1">danger</span><span class="dl">'</span>
+        <span class="p">})</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nx">presentToast</span><span class="p">({</span> <span class="na">message</span><span class="p">:</span> <span class="nx">res</span><span class="p">.</span><span class="nx">error</span><span class="p">,</span> <span class="na">color</span><span class="p">:</span> <span class="dl">'</span><span class="s1">danger</span><span class="dl">'</span><span class="p">,</span> <span class="na">duration</span><span class="p">:</span> <span class="mi">3000</span> <span class="p">})</span>
+      <span class="p">}</span>
+      <span class="nx">setWebPushEnabled</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
+    <span class="p">}</span>
+  <span class="p">}</span></code></pre></figure>
+
+</details>
+<p class="right"><a href="https://github.com/taakcloud/taak-web-push-example/blob/main/src/components/WebPushToggle.tsx#L19-L33" target="_blank" rel="noopener noreferrer">WebPushToggle.tsx <i class="fa-solid fa-arrow-up-right-from-square"></i></a></p>
+
+<h3 id="subscribe">Subscribe</h3>
+
+<details open=""><summary>Check if subscribed</summary>
+
+<figure class="highlight"><pre><code class="language-ts" data-lang="ts">  <span class="kd">const</span> <span class="nx">checkIfSubscribed</span> <span class="o">=</span> <span class="k">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">setInprogress</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
+    <span class="kd">const</span> <span class="na">res</span><span class="p">:</span> <span class="nx">TaakResponse</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">taakSdkClient</span><span class="p">.</span><span class="nx">checkIfSubscribed</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">res</span><span class="p">.</span><span class="nx">status</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">presentToast</span><span class="p">({</span> <span class="na">message</span><span class="p">:</span> <span class="nx">res</span><span class="p">.</span><span class="nx">error</span><span class="p">,</span> <span class="na">color</span><span class="p">:</span> <span class="dl">'</span><span class="s1">danger</span><span class="dl">'</span><span class="p">,</span> <span class="na">duration</span><span class="p">:</span> <span class="mi">3000</span> <span class="p">})</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="k">await</span> <span class="nx">subscribe</span><span class="p">(</span><span class="nx">res</span><span class="p">.</span><span class="nx">data</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="nx">setInprogress</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
+  <span class="p">}</span></code></pre></figure>
+
+</details>
+<p class="right"><a href="https://github.com/taakcloud/taak-web-push-example/blob/main/src/components/WebPushSubscribeButton.tsx#L18-L27" target="_blank" rel="noopener noreferrer">WebPushSubscribeButton.tsx <i class="fa-solid fa-arrow-up-right-from-square"></i></a></p>
+
+<details open=""><summary>Subscribe</summary>
+
+<figure class="highlight"><pre><code class="language-ts" data-lang="ts">  <span class="kd">const</span> <span class="nx">subscribe</span> <span class="o">=</span> <span class="k">async</span> <span class="p">(</span><span class="nx">subscription</span><span class="p">:</span> <span class="nx">PushSubscription</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">subscriptionObject</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">subscription</span><span class="p">))</span>
+    <span class="kd">const</span> <span class="na">cmd</span><span class="p">:</span> <span class="nx">WebPushSubscribeCommand</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="nx">userId</span><span class="p">,</span>
+      <span class="na">deviceId</span><span class="p">:</span> <span class="s2">`</span><span class="p">${</span><span class="nx">osName</span><span class="p">}</span><span class="s2">::</span><span class="p">${</span><span class="nx">browserName</span><span class="p">}</span><span class="s2">::</span><span class="p">${</span><span class="nx">browserVersion</span><span class="p">}</span><span class="s2">`</span><span class="p">,</span>
+      <span class="na">endpoint</span><span class="p">:</span> <span class="nx">subscription</span><span class="p">.</span><span class="nx">endpoint</span><span class="p">,</span>
+      <span class="na">key</span><span class="p">:</span> <span class="nx">subscriptionObject</span><span class="p">.</span><span class="nx">keys</span><span class="p">.</span><span class="nx">p256dh</span><span class="p">,</span>
+      <span class="na">auth</span><span class="p">:</span> <span class="nx">subscriptionObject</span><span class="p">.</span><span class="nx">keys</span><span class="p">.</span><span class="nx">auth</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="kd">const</span> <span class="na">res</span><span class="p">:</span> <span class="nx">TaakResponse</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">taakSdkClient</span><span class="p">.</span><span class="nx">subscribeWebPush</span><span class="p">(</span><span class="nx">cmd</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">res</span><span class="p">.</span><span class="nx">status</span> <span class="o">===</span> <span class="mi">201</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">presentToast</span><span class="p">({</span> <span class="na">message</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Success subscription</span><span class="dl">'</span><span class="p">,</span> <span class="na">color</span><span class="p">:</span> <span class="dl">'</span><span class="s1">success</span><span class="dl">'</span><span class="p">,</span> <span class="na">duration</span><span class="p">:</span> <span class="mi">3000</span> <span class="p">})</span>
+      <span class="nx">onSuccess</span><span class="p">(</span><span class="nx">res</span><span class="p">.</span><span class="nx">data</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="k">else</span>
+      <span class="nx">presentToast</span><span class="p">({</span> <span class="na">message</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Error subscribing </span><span class="dl">'</span> <span class="o">+</span> <span class="nx">res</span><span class="p">.</span><span class="nx">status</span><span class="p">,</span> <span class="na">color</span><span class="p">:</span> <span class="dl">'</span><span class="s1">danger</span><span class="dl">'</span><span class="p">,</span> <span class="na">duration</span><span class="p">:</span> <span class="mi">3000</span> <span class="p">})</span>
+  <span class="p">}</span></code></pre></figure>
+
+</details>
+<p class="right"><a href="https://github.com/taakcloud/taak-web-push-example/blob/main/src/components/WebPushSubscribeButton.tsx#L29-L45" target="_blank" rel="noopener noreferrer">WebPushSubscribeButton.tsx <i class="fa-solid fa-arrow-up-right-from-square"></i></a></p>
+
+<h3 id="send">Send</h3>
+
+<details open=""><summary>Send web push</summary>
+
+<figure class="highlight"><pre><code class="language-ts" data-lang="ts">  <span class="kd">const</span> <span class="nx">sendTest</span> <span class="o">=</span> <span class="k">async</span> <span class="p">(</span><span class="nx">item</span><span class="p">:</span> <span class="nx">WebPushDTO</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">setSending</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
+    <span class="kd">const</span> <span class="na">cmd</span><span class="p">:</span> <span class="nx">WebPushSendCommand</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="na">payload</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Hello World</span><span class="dl">'</span><span class="p">,</span>
+      <span class="na">publicId</span><span class="p">:</span> <span class="nx">item</span><span class="p">.</span><span class="nx">publicId</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="kd">const</span> <span class="na">res</span><span class="p">:</span> <span class="nx">TaakResponse</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">taakSdkClient</span><span class="p">.</span><span class="nx">sendWebPush</span><span class="p">(</span><span class="nx">cmd</span><span class="p">)</span>
+    <span class="nx">presentToast</span><span class="p">({</span> <span class="na">message</span><span class="p">:</span> <span class="s2">`Success sending push with status </span><span class="p">${</span><span class="nx">res</span><span class="p">.</span><span class="nx">status</span><span class="p">}</span><span class="s2">`</span><span class="p">,</span> <span class="na">duration</span><span class="p">:</span> <span class="mi">3000</span> <span class="p">})</span>
+    <span class="nx">setSending</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
+  <span class="p">}</span></code></pre></figure>
+
+</details>
+<p class="right"><a href="https://github.com/taakcloud/taak-web-push-example/blob/main/src/components/WebPushSubscriptionList.tsx#L28-L37" target="_blank" rel="noopener noreferrer">WebPushSubscriptionList.tsx <i class="fa-solid fa-arrow-up-right-from-square"></i></a></p>
+
+<h3 id="list">List</h3>
+
+<details open=""><summary>Subscription list</summary>
+
+<figure class="highlight"><pre><code class="language-ts" data-lang="ts">  <span class="kd">const</span> <span class="nx">fetchItems</span> <span class="o">=</span> <span class="k">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">setInprogress</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
+    <span class="kd">const</span> <span class="na">res</span><span class="p">:</span> <span class="nx">TaakResponse</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">taakSdkClient</span><span class="p">.</span><span class="nx">getWebPushesByUserId</span><span class="p">(</span><span class="nx">userId</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">res</span><span class="p">.</span><span class="nx">status</span> <span class="o">===</span> <span class="mi">200</span><span class="p">)</span>
+      <span class="nx">setItems</span><span class="p">(</span><span class="nx">res</span><span class="p">.</span><span class="nx">data</span><span class="p">)</span>
+    <span class="nx">setInprogress</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
+  <span class="p">}</span></code></pre></figure>
+
+</details>
+<p class="right"><a href="https://github.com/taakcloud/taak-web-push-example/blob/main/src/components/WebPushSubscriptionList.tsx#L20-L26" target="_blank" rel="noopener noreferrer">WebPushSubscriptionList.tsx <i class="fa-solid fa-arrow-up-right-from-square"></i></a></p>
+
+<h3 id="delete">Delete</h3>
+
+<details open=""><summary>Delete an subscription</summary>
+
+<figure class="highlight"><pre><code class="language-ts" data-lang="ts">  <span class="kd">const</span> <span class="nx">deleteItem</span> <span class="o">=</span> <span class="k">async</span> <span class="p">(</span><span class="nx">item</span><span class="p">:</span> <span class="nx">WebPushDTO</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">setDeleting</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
+    <span class="kd">const</span> <span class="na">res</span><span class="p">:</span> <span class="nx">TaakResponse</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">taakSdkClient</span><span class="p">.</span><span class="nx">deleteWebPush</span><span class="p">(</span><span class="nx">item</span><span class="p">.</span><span class="nx">publicId</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">res</span><span class="p">.</span><span class="nx">status</span> <span class="o">===</span> <span class="mi">204</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">presentToast</span><span class="p">({</span> <span class="na">message</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Success deleting subscription</span><span class="dl">'</span><span class="p">,</span> <span class="na">duration</span><span class="p">:</span> <span class="mi">3000</span> <span class="p">})</span>
+      <span class="k">await</span> <span class="nx">fetchItems</span><span class="p">()</span>
+    <span class="p">}</span>
+    <span class="nx">setDeleting</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
+  <span class="p">}</span></code></pre></figure>
+
+</details>
+<p class="right"><a href="https://github.com/taakcloud/taak-web-push-example/blob/main/src/components/WebPushSubscriptionList.tsx#L39-L47" target="_blank" rel="noopener noreferrer">WebPushSubscriptionList.tsx <i class="fa-solid fa-arrow-up-right-from-square"></i></a></p>
+
+<h3 id="test-suite">Test suite</h3>
+
+<p><a href="https://github.com/taakcloud/taak-sdk-js/blob/main/src/web-push/index.test.ts" target="_blank" rel="noopener noreferrer">index.test.ts <i class="fa-solid fa-arrow-up-right-from-square"></i></a></p>]]></content><author><name></name></author><category term="products" /><summary type="html"><![CDATA[Web push notification with ease on scale]]></summary></entry><entry><title type="html">Generate API Key</title><link href="https://docs.taakcloud.com/getting-started/generate-api-key/" rel="alternate" type="text/html" title="Generate API Key" /><published>2023-01-24T00:00:00+00:00</published><updated>2023-01-24T00:00:00+00:00</updated><id>https://docs.taakcloud.com/getting-started/generate-api-key</id><content type="html" xml:base="https://docs.taakcloud.com/getting-started/generate-api-key/"><![CDATA[<p>API keys identifies your app and helps to check quota and access.</p>
+
+<h2 id="credentials-page">Credentials page</h2>
+
+<p><a href="https://taakcloud.com/apps/credentials" target="_blank" rel="noopener noreferrer">https://taakcloud.com/apps/credentials <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+ is for managing credentials.</p>
+
+<h2 id="generate-option">Generate option</h2>
+
+<p>Generate option will be visiable by clicking <em>+ CREATE CREDENTIALS</em> from top menu right:</p>
+
+<p class="tofigure"><img src="/assets/img/generate-api-key/generate-api-key-option.png" alt="Generate option" title="Generate option" /></p>
+
+<h2 id="generate-button">Generate button</h2>
+
+<p>API Key will be generated by clicking <em>generate</em> button:</p>
+
+<p class="tofigure"><img src="/assets/img/generate-api-key/generate-button.png" alt="Generate button" title="Generate button" /></p>
+
+<p>That’s all, new API Key generated.</p>]]></content><author><name></name></author><category term="getting-started" /><summary type="html"><![CDATA[Generate your first API Key]]></summary></entry><entry><title type="html">Create App</title><link href="https://docs.taakcloud.com/getting-started/create-app/" rel="alternate" type="text/html" title="Create App" /><published>2023-01-22T08:18:11+00:00</published><updated>2023-01-22T08:18:11+00:00</updated><id>https://docs.taakcloud.com/getting-started/create-app</id><content type="html" xml:base="https://docs.taakcloud.com/getting-started/create-app/"><![CDATA[<p>Apps are like workspaces and everything will work <em>isolated</em> based on <strong>current</strong> selected app.</p>
+
+<h2 id="step-1">Step 1</h2>
+
+<p>Go to <a href="https://taakcloud.com/apps/" target="_blank">https://taakcloud.com/apps <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+ first.</p>
+
+<h2 id="step-2">Step 2</h2>
+
+<p>After login you should be able te see following screenshot:</p>
+
+<p class="tofigure"><img src="/assets/img/create-app/screen1.png" alt="New app button" title="Apps page" /></p>
+
+<p>and select <em>+ New app</em> button.</p>
+
+<h2 id="step-3">Step 3</h2>
+
+<p>Type a name, and click <em>save</em> button.</p>
+
+<p>Tha’s all, new app created:</p>
+
+<p class="tofigure"><img src="/assets/img/create-app/screen2.png" alt="Success screen" title="App selected" /></p>]]></content><author><name></name></author><category term="getting-started" /><summary type="html"><![CDATA[Create your first App]]></summary></entry></feed>
