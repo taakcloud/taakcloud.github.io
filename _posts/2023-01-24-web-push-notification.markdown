@@ -15,8 +15,8 @@ Send web push notification with ease and zero cost on scale.
 
 ## Prerequisites
 
-- [x] Select your app/workspace, see [Create app <i class="fa-solid fa-arrow-up-right-from-square"></i>]({% post_url 2023-01-22-create-app %}){:target="_blank"}{:rel="noopener noreferrer"}
-- [x] Get your API Key, see [Generate API Key <i class="fa-solid fa-arrow-up-right-from-square"></i>]({% post_url 2023-01-24-generate-api-key %}){:target="_blank"}{:rel="noopener noreferrer"}
+- [x] Select your app/workspace, see [Create app]({% post_url 2023-01-22-create-app %})
+- [x] Get your API Key, see [Generate API Key]({% post_url 2023-01-24-generate-api-key %})
 
 ## Taak SDK JS
 
