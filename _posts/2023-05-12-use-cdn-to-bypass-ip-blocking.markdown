@@ -11,6 +11,8 @@ layout: doc
 toc: true
 ---
 
+![In a big picture]({{ site.baseUrl }}/assets/img/cdn-by-pass-ip-blocking/cover.jpg "In a big picture")
+{:.tofigure}
 
 ## Requirements
 
