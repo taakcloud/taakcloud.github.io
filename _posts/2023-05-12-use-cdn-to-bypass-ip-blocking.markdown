@@ -1,5 +1,5 @@
 ---
-title: "Use CDN to by pass IP blocking"
+title: "Use CDN to bypass IP blocking"
 date: 2023-05-12 08:08:00 +0000
 description: An unidentifiable mechanism to bypass IP blocking
 categories:
@@ -241,7 +241,7 @@ Set socks proxy for your system, e.g. for mac:
 ![Mac socks proxy]({{ site.baseUrl }}/assets/img/cdn-by-pass-ip-blocking/mac-socks-proxy.png "Mac socks proxy")
 {:.tofigure}
 
-Then check your resolved IP, for example go to [ipleak.net <i class="fa-solid fa-arrow-up-right-from-square"/>](https://ipleak.net){:target="_blank"}{:rel="noopener noreferrer"}. If you see your proxy server IP address, then congratulations! you did by pass IP blocking with unidentifiable mechanism.
+Then check your resolved IP, for example go to [ipleak.net <i class="fa-solid fa-arrow-up-right-from-square"/>](https://ipleak.net){:target="_blank"}{:rel="noopener noreferrer"}. If you see your proxy server IP address, then congratulations! you did bypass IP blocking with unidentifiable mechanism.
 
 ### Bonus #1 (run as service in server)
 
