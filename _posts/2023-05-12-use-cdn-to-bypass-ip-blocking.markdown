@@ -282,7 +282,7 @@ journalctl --follow -u trojan-go
 
 ### Bonus #2 (restart trojan-go service every hour)
 
-You may notice your client may have difficulty to connect to the service, and in my case restarting the service was enough to fix them.
+You may notice your client may have difficulty to connect to the service sometimes, and in my case restarting the service was enough to fix them.
 
 {% highlight shell %}
 crontab -e
@@ -300,14 +300,18 @@ Following Trojan URL format works for [Igniter app <i class="fa-solid fa-arrow-u
 trojan://your-password@helper.example.com:443#hope
 {% endhighlight %}
 
-but with penalty of disabling _CDN Proxy shield_, so there is a chance your server public IP gets blocked and you have to use another IP.
+but with penalty of disabling _CDN Proxy shield_, so there is a chance your server's public IP gets blocked and you have to use another IP.
 
 ### Bonus #4 (iOS client)
 
-[NapsternetV <i class="fa-solid fa-arrow-up-right-from-square"/>](https://apps.apple.com/us/app/napsternetv/id1629465476){:target="_blank"}{:rel="noopener noreferrer"} did work as client but same as Android with penalty of disabling _CDN Proxy shield_. Also a [x-ui <i class="fa-solid fa-arrow-up-right-from-square"/>](https://github.com/vaxilu/x-ui) is needed for creating profiles and later scanning their QR-code by the application.
+[NapsternetV <i class="fa-solid fa-arrow-up-right-from-square"/>](https://apps.apple.com/us/app/napsternetv/id1629465476){:target="_blank"}{:rel="noopener noreferrer"} did work as client but same as Android doesn't work with _CDN Proxy status_ on. Maybe this issue is related to how cloudflare handles SSL between CDN servers and your server, so you may have luck with another CDN provider.
 
-![x-ui profile example]({{ site.baseUrl }}/assets/img/cdn-by-pass-ip-blocking/x-ui-profile-example.png "x-ui profile example")
-{:.tofigure}
+<details open><summary>NapsternetV config</summary>
+{% highlight json %}
+
+{"routing":{"domainStrategy":"Asls"},"inbounds":[{"sniffing":{"enabled":false},"listen":"127.0.0.1","protocol":"socks","settings":{"udp":true,"auth":"noauth","userLevel":8},"tag":"socks","port":10808}],"outbounds":[{"mux":{"enabled":false},"streamSettings":{"network":"tcp","tlsSettings":{"serverName":"helper.example.com","allowInsecure":true,"fingerprint":"chrome"},"security":"tls"},"protocol":"trojan","settings":{"servers":[{"password":"your-password","port":443,"method":"aes-128-cfb","ota":false,"level":8,"address":"helper.example.com"}]}}],"log":{"loglevel":"none"},"dns":{"servers":["8.8.8.8","8.8.4.4"]}}
+{% endhighlight %}
+</details>
 
 ### Bonus #5 ([Privoxy <i class="fa-solid fa-arrow-up-right-from-square"/>](https://www.privoxy.org/){:target="_blank"}{:rel="noopener noreferrer"} http proxy use this socks proxy)
 
