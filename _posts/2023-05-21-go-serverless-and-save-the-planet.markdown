@@ -1,6 +1,6 @@
 ---
 title: "Go Serverless and save the planet"
-date: 2023-05-12 08:08:00 +0000
+date: 2023-05-21 08:08:00 +0000
 description: Complete guide to self-host the Knative platform
 categories:
  - blog
