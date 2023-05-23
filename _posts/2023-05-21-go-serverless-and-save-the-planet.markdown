@@ -766,3 +766,146 @@ Hello Go Sample v1!
 </details>
 
 That's all, in this post we did deploy a Knative service and make it securely available to our customers &#127867;.
+
+{% highlight shell %}
+kubectl get all -A
+{% endhighlight %}
+
+<details><summary>output</summary>
+{% highlight shell %}
+NAMESPACE            NAME                                             READY   STATUS    RESTARTS         AGE
+cert-manager         pod/cert-manager-5d6bc46969-btqdd                1/1     Running   1 (5h51m ago)    24h
+cert-manager         pod/cert-manager-cainjector-7d8b8bb6b8-rjsx5     1/1     Running   1 (5h50m ago)    24h
+cert-manager         pod/cert-manager-webhook-5c5c5bb457-6zjcp        1/1     Running   0                24h
+container-registry   pod/registry-9865b655c-ftngg                     1/1     Running   0                23h
+default              pod/knative-operator-7b7d4bbc7d-pj48l            1/1     Running   0                22h
+default              pod/operator-webhook-74d9489bf8-7vdhr            1/1     Running   0                22h
+istio-ingress        pod/istio-ingressgateway-7f5958c7d9-l2qfc        1/1     Running   0                24h
+istio-operator       pod/istio-operator-79d6df8f9d-m9zkw              1/1     Running   3 (5h51m ago)    25h
+istio-system         pod/istiod-57c965889-pdpv5                       1/1     Running   0                29h
+knative-serving      pod/activator-658c5747b-zzvjm                    1/1     Running   0                21h
+knative-serving      pod/autoscaler-f989fbf86-fzszz                   1/1     Running   0                21h
+knative-serving      pod/autoscaler-hpa-5d7668d747-gs6zs              1/1     Running   0                21h
+knative-serving      pod/controller-64b9dcc975-h4vnq                  1/1     Running   0                21h
+knative-serving      pod/domain-mapping-7b87f895b6-zxbkk              1/1     Running   0                21h
+knative-serving      pod/domainmapping-webhook-54cddcb594-xxmgl       1/1     Running   0                21h
+knative-serving      pod/net-certmanager-controller-575898d58-bv6x5   1/1     Running   0                20h
+knative-serving      pod/net-certmanager-webhook-7cd899c855-pps7t     1/1     Running   0                20h
+knative-serving      pod/net-istio-controller-84cb8b59fb-dxvgq        1/1     Running   0                21h
+knative-serving      pod/net-istio-webhook-8d785b78d-jwqqf            1/1     Running   0                21h
+knative-serving      pod/webhook-7698bcf68f-qxd7f                     1/1     Running   0                21h
+kube-system          pod/coredns-7745f9f87f-lswgs                     1/1     Running   2 (28h ago)      47h
+kube-system          pod/csi-nfs-controller-6f844cdc89-slhdt          3/3     Running   12 (5h51m ago)   30h
+kube-system          pod/csi-nfs-node-r6h7c                           3/3     Running   6 (28h ago)      30h
+kube-system          pod/hostpath-provisioner-58694c9f4b-ztmgq        1/1     Running   3 (5h51m ago)    23h
+metallb-system       pod/controller-8467d88d69-sqlsf                  1/1     Running   0                25h
+metallb-system       pod/speaker-j4b5r                                1/1     Running   0                25h
+
+NAMESPACE            NAME                                  TYPE           CLUSTER-IP       EXTERNAL-IP                                             PORT(S)                                              AGE
+cert-manager         service/cert-manager                  ClusterIP      10.152.183.71    <none>                                                  9402/TCP                                             24h
+cert-manager         service/cert-manager-webhook          ClusterIP      10.152.183.177   <none>                                                  443/TCP                                              24h
+container-registry   service/registry                      NodePort       10.152.183.166   <none>                                                  5000:32000/TCP                                       23h
+default              service/helloworld-go                 ExternalName   <none>           knative-local-gateway.istio-ingress.svc.cluster.local   80/TCP                                               19h
+default              service/helloworld-go-00001           ClusterIP      10.152.183.45    <none>                                                  80/TCP,443/TCP                                       19h
+default              service/helloworld-go-00001-private   ClusterIP      10.152.183.68    <none>                                                  80/TCP,443/TCP,9090/TCP,9091/TCP,8022/TCP,8012/TCP   19h
+default              service/kubernetes                    ClusterIP      10.152.183.1     <none>                                                  443/TCP                                              47h
+default              service/operator-webhook              ClusterIP      10.152.183.107   <none>                                                  9090/TCP,8008/TCP,443/TCP                            22h
+istio-ingress        service/istio-ingressgateway          LoadBalancer   10.152.183.50    10.0.0.5                                                15021:30688/TCP,80:30792/TCP,443:32182/TCP           25h
+istio-ingress        service/knative-local-gateway         ClusterIP      10.152.183.228   <none>                                                  80/TCP                                               21h
+istio-operator       service/istio-operator                ClusterIP      10.152.183.132   <none>                                                  8383/TCP                                             25h
+istio-system         service/istiod                        ClusterIP      10.152.183.139   <none>                                                  15010/TCP,15012/TCP,443/TCP,15014/TCP                29h
+istio-system         service/knative-local-gateway         ClusterIP      10.152.183.216   <none>                                                  80/TCP                                               21h
+knative-serving      service/activator-service             ClusterIP      10.152.183.19    <none>                                                  9090/TCP,8008/TCP,80/TCP,81/TCP,443/TCP              21h
+knative-serving      service/autoscaler                    ClusterIP      10.152.183.49    <none>                                                  9090/TCP,8008/TCP,8080/TCP                           21h
+knative-serving      service/autoscaler-bucket-00-of-01    ClusterIP      10.152.183.147   <none>                                                  8080/TCP                                             21h
+knative-serving      service/autoscaler-hpa                ClusterIP      10.152.183.156   <none>                                                  9090/TCP,8008/TCP                                    21h
+knative-serving      service/controller                    ClusterIP      10.152.183.35    <none>                                                  9090/TCP,8008/TCP                                    21h
+knative-serving      service/domainmapping-webhook         ClusterIP      10.152.183.238   <none>                                                  9090/TCP,8008/TCP,443/TCP                            21h
+knative-serving      service/net-certmanager-controller    ClusterIP      10.152.183.104   <none>                                                  9090/TCP,8008/TCP                                    20h
+knative-serving      service/net-certmanager-webhook       ClusterIP      10.152.183.227   <none>                                                  9090/TCP,8008/TCP,443/TCP                            20h
+knative-serving      service/net-istio-webhook             ClusterIP      10.152.183.138   <none>                                                  9090/TCP,8008/TCP,443/TCP                            21h
+knative-serving      service/webhook                       ClusterIP      10.152.183.150   <none>                                                  9090/TCP,8008/TCP,443/TCP                            21h
+kube-system          service/kube-dns                      ClusterIP      10.152.183.10    <none>                                                  53/UDP,53/TCP,9153/TCP                               47h
+metallb-system       service/webhook-service               ClusterIP      10.152.183.163   <none>                                                  443/TCP                                              25h
+
+NAMESPACE        NAME                          DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR            AGE
+kube-system      daemonset.apps/csi-nfs-node   1         1         1       1            1           kubernetes.io/os=linux   30h
+metallb-system   daemonset.apps/speaker        1         1         1       1            1           kubernetes.io/os=linux   25h
+
+NAMESPACE            NAME                                             READY   UP-TO-DATE   AVAILABLE   AGE
+cert-manager         deployment.apps/cert-manager                     1/1     1            1           24h
+cert-manager         deployment.apps/cert-manager-cainjector          1/1     1            1           24h
+cert-manager         deployment.apps/cert-manager-webhook             1/1     1            1           24h
+container-registry   deployment.apps/registry                         1/1     1            1           23h
+default              deployment.apps/helloworld-go-00001-deployment   0/0     0            0           19h
+default              deployment.apps/knative-operator                 1/1     1            1           22h
+default              deployment.apps/operator-webhook                 1/1     1            1           22h
+istio-ingress        deployment.apps/istio-ingressgateway             1/1     1            1           25h
+istio-operator       deployment.apps/istio-operator                   1/1     1            1           25h
+istio-system         deployment.apps/istiod                           1/1     1            1           29h
+knative-serving      deployment.apps/activator                        1/1     1            1           21h
+knative-serving      deployment.apps/autoscaler                       1/1     1            1           21h
+knative-serving      deployment.apps/autoscaler-hpa                   1/1     1            1           21h
+knative-serving      deployment.apps/controller                       1/1     1            1           21h
+knative-serving      deployment.apps/domain-mapping                   1/1     1            1           21h
+knative-serving      deployment.apps/domainmapping-webhook            1/1     1            1           21h
+knative-serving      deployment.apps/net-certmanager-controller       1/1     1            1           20h
+knative-serving      deployment.apps/net-certmanager-webhook          1/1     1            1           20h
+knative-serving      deployment.apps/net-istio-controller             1/1     1            1           21h
+knative-serving      deployment.apps/net-istio-webhook                1/1     1            1           21h
+knative-serving      deployment.apps/webhook                          1/1     1            1           21h
+kube-system          deployment.apps/coredns                          1/1     1            1           47h
+kube-system          deployment.apps/csi-nfs-controller               1/1     1            1           30h
+kube-system          deployment.apps/hostpath-provisioner             1/1     1            1           23h
+metallb-system       deployment.apps/controller                       1/1     1            1           25h
+
+NAMESPACE            NAME                                                        DESIRED   CURRENT   READY   AGE
+cert-manager         replicaset.apps/cert-manager-5d6bc46969                     1         1         1       24h
+cert-manager         replicaset.apps/cert-manager-cainjector-7d8b8bb6b8          1         1         1       24h
+cert-manager         replicaset.apps/cert-manager-webhook-5c5c5bb457             1         1         1       24h
+container-registry   replicaset.apps/registry-9865b655c                          1         1         1       23h
+default              replicaset.apps/helloworld-go-00001-deployment-6466c46f55   0         0         0       19h
+default              replicaset.apps/knative-operator-7b7d4bbc7d                 1         1         1       22h
+default              replicaset.apps/operator-webhook-74d9489bf8                 1         1         1       22h
+istio-ingress        replicaset.apps/istio-ingressgateway-77b5b78896             0         0         0       25h
+istio-ingress        replicaset.apps/istio-ingressgateway-7f5958c7d9             1         1         1       25h
+istio-operator       replicaset.apps/istio-operator-79d6df8f9d                   1         1         1       25h
+istio-system         replicaset.apps/istiod-57c965889                            1         1         1       29h
+knative-serving      replicaset.apps/activator-658c5747b                         1         1         1       21h
+knative-serving      replicaset.apps/autoscaler-f989fbf86                        1         1         1       21h
+knative-serving      replicaset.apps/autoscaler-hpa-5d7668d747                   1         1         1       21h
+knative-serving      replicaset.apps/controller-64b9dcc975                       1         1         1       21h
+knative-serving      replicaset.apps/domain-mapping-7b87f895b6                   1         1         1       21h
+knative-serving      replicaset.apps/domainmapping-webhook-54cddcb594            1         1         1       21h
+knative-serving      replicaset.apps/net-certmanager-controller-575898d58        1         1         1       20h
+knative-serving      replicaset.apps/net-certmanager-webhook-7cd899c855          1         1         1       20h
+knative-serving      replicaset.apps/net-istio-controller-84cb8b59fb             1         1         1       21h
+knative-serving      replicaset.apps/net-istio-webhook-8d785b78d                 1         1         1       21h
+knative-serving      replicaset.apps/webhook-7698bcf68f                          1         1         1       21h
+kube-system          replicaset.apps/coredns-7745f9f87f                          1         1         1       47h
+kube-system          replicaset.apps/csi-nfs-controller-6f844cdc89               1         1         1       30h
+kube-system          replicaset.apps/hostpath-provisioner-58694c9f4b             1         1         1       23h
+metallb-system       replicaset.apps/controller-8467d88d69                       1         1         1       25h
+
+NAMESPACE         NAME                                                       REFERENCE                         TARGETS          MINPODS   MAXPODS   REPLICAS   AGE
+istio-ingress     horizontalpodautoscaler.autoscaling/istio-ingressgateway   Deployment/istio-ingressgateway   <unknown>/80%    1         5         1          25h
+istio-system      horizontalpodautoscaler.autoscaling/istiod                 Deployment/istiod                 <unknown>/80%    1         5         1          29h
+knative-serving   horizontalpodautoscaler.autoscaling/activator              Deployment/activator              <unknown>/100%   1         20        1          21h
+knative-serving   horizontalpodautoscaler.autoscaling/webhook                Deployment/webhook                <unknown>/100%   1         5         1          21h
+
+NAMESPACE   NAME                                              LATESTCREATED         LATESTREADY           READY   REASON
+default     configuration.serving.knative.dev/helloworld-go   helloworld-go-00001   helloworld-go-00001   True
+
+NAMESPACE   NAME                                               CONFIG NAME     K8S SERVICE NAME   GENERATION   READY   REASON   ACTUAL REPLICAS   DESIRED REPLICAS
+default     revision.serving.knative.dev/helloworld-go-00001   helloworld-go                      1            True             0                 0
+
+NAMESPACE   NAME                                      URL                                             READY   REASON
+default     route.serving.knative.dev/helloworld-go   https://helloworld-go.default.s.taakcloud.com   True
+
+NAMESPACE   NAME                                        URL                                             LATESTCREATED         LATESTREADY           READY   REASON
+default     service.serving.knative.dev/helloworld-go   https://helloworld-go.default.s.taakcloud.com   helloworld-go-00001   helloworld-go-00001   True
+
+NAMESPACE   NAME                                                    URL                           READY   REASON
+default     domainmapping.serving.knative.dev/hello.taakcloud.com   https://hello.taakcloud.com   True
+{% endhighlight %}
+</details>
