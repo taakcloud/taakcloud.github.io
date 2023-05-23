@@ -76,11 +76,24 @@ figcaption {
   color: #495057;
 }
 
+.highlight pre code {
+  display: block;
+  min-width: 700px;
+}
+
 .highlight pre {
   white-space: pre;
   margin-top: 0;
   margin-bottom: 0;
-  min-width: 900px;
+  overflow-y: scroll;
+  padding-right: 17px; /* Increase/decrease this value for cross-browser compatibility */
+  box-sizing: content-box;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.highlight pre::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 .right {

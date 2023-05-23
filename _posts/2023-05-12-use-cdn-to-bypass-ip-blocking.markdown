@@ -26,7 +26,7 @@ First make sure your remote server doesn't not have the limitation that your cli
 - [x] Ubuntu 20.04 LTS
 - [x] [Trojan-go <i class="fa-solid fa-arrow-up-right-from-square"></i>](https://github.com/p4gefau1t/trojan-go){:target="_blank"}{:rel="noopener noreferrer"} v0.10.6
 
-You could have a different environment as far as our requirements are supported, for example pay attention your shadow-socks implantation does support CDN transfer.
+You could have a different environment as far as our requirements are supported, for example pay attention your Shadowsocks implantation does support CDN transfer.
 
 ## Enter A DNS Record
 
@@ -324,4 +324,4 @@ forward-socks5t   /               127.0.0.1:1080 .
 _/etc/privoxy/config_
 {: .right}
 
-That's all, at the end I would like to thank all scientists who contribute to this and are fighting in the right side of history. Let's hope we live in a world that Geo IP blocking doesn't limit any country.
+That's all, at the end I would like to thank all scientists who contribute to this solution and are fighting in the right side of history. Let's hope one day we live in a world that governments can't use Geo IP blocking to isolate people.
