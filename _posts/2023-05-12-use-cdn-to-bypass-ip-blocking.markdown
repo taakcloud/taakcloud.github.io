@@ -216,8 +216,9 @@ Note: both port 80 and 443 must be open and accessible from outside.
         "sni": "helper.example.com"
     },
     "websocket": {
-        "enabled": false,
-        "path": "/path"
+        "enabled": true,
+        "path": "/path",
+        "host": "helper.example.com"
     }
 }
 {% endhighlight %}
