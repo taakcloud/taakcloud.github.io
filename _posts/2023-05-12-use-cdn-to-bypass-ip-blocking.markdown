@@ -51,12 +51,12 @@ Next create _server.json_ file and don't worry about not existed files yet, we w
   "run_type": "server",
   "local_addr": "0.0.0.0",
   "local_port": 443,
-  "remote_addr": "0.0.0.0",
+  "remote_addr": "127.0.0.1",
   "remote_port": 80,
   "password": ["your-password"],
   "ssl": {
-    "cert": "/home/ubuntu/certs/cert.crt",
-    "key": "/home/ubuntu/certs/private.key",
+    "cert": "/home/ubuntu/.acme.sh/helper.example.com/fullchain.cer",
+    "key": "/home/ubuntu/.acme.sh/helper.example.com/helper.example.com.key",
     "sni": "helper.example.com"
   },
   "websocket": {
@@ -170,13 +170,11 @@ NaKg3k3etgp6mbftyehTgbs+GVLL++6uDwtMXSUgAjByPLMfWshlHqZVrGg/F+R3
 {% endhighlight %}
 </details>
 
-And finally creating _private.key_ and _cert.crt_ which are needed by _server.json_.
+For Cloudflare CDN make sure SSL mode is set to full.
 
-{% highlight shell %}
-mkdir ~/certs
-~/.acme.sh/acme.sh --installcert -d helper.example.com --key-file ~/certs/private.key --fullchain-file ~/certs/cert.crt
-chmod +x -R ~/certs/
-{% endhighlight %}
+![SSL Mode Full]({{ site.baseUrl }}/assets/img/cdn-by-pass-ip-blocking/ssl-mode-full.png "SSL Mode Full")
+{:.tofigure}
+
 
 ## Install apache2
 {% highlight shell %}
