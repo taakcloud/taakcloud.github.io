@@ -26,7 +26,7 @@ First make sure your remote server doesn't not have the limitation that your cli
 - [x] Ubuntu 20.04 LTS
 - [x] [Trojan-go <i class="fa-solid fa-arrow-up-right-from-square"></i>](https://github.com/p4gefau1t/trojan-go){:target="_blank"}{:rel="noopener noreferrer"} v0.10.6
 
-You could have a different environment as far as our requirements are supported, for example pay attention your Shadowsocks implantation does support CDN transfer.
+You could have a different environment as far as our requirements are supported, for example pay attention your Shadowsocks implementation does support CDN transfer.
 
 ## Enter A DNS Record
 
