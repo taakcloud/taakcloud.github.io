@@ -490,6 +490,7 @@ microk8s enable registry
 ##### Registry ingress
 <details open><summary>registry-ingress.yaml</summary>
 {% highlight yaml %}
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: registry
