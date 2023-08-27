@@ -2,8 +2,6 @@
 title: "Use CDN to bypass IP blocking"
 date: 2023-05-12 08:08:00 +0000
 description: An unidentifiable mechanism to bypass IP blocking
-categories:
- - blog
 set: blog
 order_number: 1
 type: Document
@@ -19,12 +17,12 @@ toc: true
 - [x] A remote server with a public IP(v4) address (e.g. 13.49.80.99)
 - [x] A domain name (e.g. helper.example.com)
 
-First make sure your remote server doesn't not have the limitation that your client machine have, so check your internet access from a remote server first. For example your remote server could be a micro instance from Amazon ec2 free tier. You also need a domain name or a sub domain for this method, and a trustworthy CDN provider, such as [cloudflare.com <i class="fa-solid fa-arrow-up-right-from-square"></i>](https://cloudflare.com){:target="_blank"}{:rel="noopener noreferrer"}. please note some CDN providers are not suitable for this method, because they are under pressure of a government and can't help you to not report your server IP to blocker machines.
+First make sure your remote server doesn't not have the limitation that your client machine have, so check your internet access from a remote server first. For example your remote server could be a micro instance from Amazon ec2 free tier. You also need a domain name or a sub domain for this method, and a trustworthy CDN provider, such as [cloudflare.com <i class="fa-solid fa-arrow-up-right-from-square"></i>](https://cloudflare.com){:target="\_blank"}{:rel="noopener noreferrer"}. please note some CDN providers are not suitable for this method, because they are under pressure of a government and can't help you to not report your server IP to blocker machines.
 
 ## Tested environment
 
 - [x] Ubuntu 20.04 LTS
-- [x] [Trojan-go <i class="fa-solid fa-arrow-up-right-from-square"></i>](https://github.com/p4gefau1t/trojan-go){:target="_blank"}{:rel="noopener noreferrer"} v0.10.6
+- [x] [Trojan-go <i class="fa-solid fa-arrow-up-right-from-square"></i>](https://github.com/p4gefau1t/trojan-go){:target="\_blank"}{:rel="noopener noreferrer"} v0.10.6
 
 You could have a different environment as far as our requirements are supported, for example pay attention your Shadowsocks implementation does support CDN transfer.
 
@@ -45,6 +43,7 @@ unzip trojan-go-linux-amd64.zip -d trojan-go
 <br />
 
 Next create _server.json_ file and don't worry about not existed files yet, we will take care of them in next steps.
+
 <details open><summary>server.json</summary>
 {% highlight json %}
 {
@@ -72,12 +71,12 @@ _/home/ubuntu/trojan-go/server.json_
 
 ## SSL Certificate generation
 
-For keeping it simple, we are going to use [acme.sh <i class="fa-solid fa-arrow-up-right-from-square"></i>](https://github.com/acmesh-official/acme.sh){:target="_blank"}{:rel="noopener noreferrer"} to create 3 months valid Certificate manually, but keep in mind you could automate this part.
+For keeping it simple, we are going to use [acme.sh <i class="fa-solid fa-arrow-up-right-from-square"></i>](https://github.com/acmesh-official/acme.sh){:target="\_blank"}{:rel="noopener noreferrer"} to create 3 months valid Certificate manually, but keep in mind you could automate this part.
 
 #### Install acme.sh
 
 {% highlight shell %}
-wget -O -  https://get.acme.sh | sh -s email=your-mail-address@gmail.com
+wget -O - https://get.acme.sh | sh -s email=your-mail-address@gmail.com
 {% endhighlight %}
 
 <details><summary>output</summary>
@@ -130,7 +129,7 @@ Next create a TXT DNS Record with values given by previous command.
 After a minute or so, run following command to finish Certificate generation.
 
 {% highlight shell %}
- ~/.acme.sh/acme.sh --renew -d helper.example.com  --yes-I-know-dns-manual-mode-enough-go-ahead-please
+~/.acme.sh/acme.sh --renew -d helper.example.com --yes-I-know-dns-manual-mode-enough-go-ahead-please
 {% endhighlight %}
 
 <details><summary>output</summary>
@@ -175,8 +174,8 @@ For Cloudflare CDN make sure SSL mode is set to full.
 ![SSL Mode Full]({{ site.baseUrl }}/assets/img/cdn-by-pass-ip-blocking/ssl-mode-full.png "SSL Mode Full")
 {:.tofigure}
 
-
 ## Install apache2
+
 {% highlight shell %}
 sudo apt install apache2 -y
 sudo systemctl enable apache2
@@ -242,11 +241,11 @@ Set socks proxy for your system, e.g. for mac:
 ![Mac socks proxy]({{ site.baseUrl }}/assets/img/cdn-by-pass-ip-blocking/mac-socks-proxy.png "Mac socks proxy")
 {:.tofigure}
 
-Then check your resolved IP, for example go to [ipleak.net <i class="fa-solid fa-arrow-up-right-from-square"/>](https://ipleak.net){:target="_blank"}{:rel="noopener noreferrer"}. If you see your proxy server IP address, then congratulations! you did bypass IP blocking with unidentifiable mechanism.
+Then check your resolved IP, for example go to [ipleak.net <i class="fa-solid fa-arrow-up-right-from-square"/>](https://ipleak.net){:target="\_blank"}{:rel="noopener noreferrer"}. If you see your proxy server IP address, then congratulations! you did bypass IP blocking with unidentifiable mechanism.
 
 ### Bonus #1 (run as service in server)
 
-[Tmux <i class="fa-solid fa-arrow-up-right-from-square"/>](https://github.com/tmux/tmux/wiki){:target="_blank"}{:rel="noopener noreferrer"} is a convenient tool to run a program in background, but it worth the effort to run trojan-go as a service.
+[Tmux <i class="fa-solid fa-arrow-up-right-from-square"/>](https://github.com/tmux/tmux/wiki){:target="\_blank"}{:rel="noopener noreferrer"} is a convenient tool to run a program in background, but it worth the effort to run trojan-go as a service.
 
 {% highlight shell %}
 sudo vim /lib/systemd/system/trojan-go.service
@@ -263,6 +262,7 @@ ExecStart=/home/ubuntu/trojan-go/trojan-go -config /home/ubuntu/trojan-go/server
 [Install]
 WantedBy=multi-user.target
 {% endhighlight %}
+
 </details>
 _/lib/systemd/system/trojan-go.service_
 {: .right}
@@ -288,12 +288,12 @@ crontab -e
 {% endhighlight %}
 and add following line at the end:
 {% highlight bash %}
-*/60 * * * * systemctl restart trojan-go.service
+_/60 _ \* \* \* systemctl restart trojan-go.service
 {% endhighlight %}
 
 ### Bonus #3 (Android client)
 
-Following Trojan URL format works for [Igniter app <i class="fa-solid fa-arrow-up-right-from-square"/>](https://play.google.com/store/apps/details?id=io.github.trojan_gfw.igniter){:target="_blank"}{:rel="noopener noreferrer"}
+Following Trojan URL format works for [Igniter app <i class="fa-solid fa-arrow-up-right-from-square"/>](https://play.google.com/store/apps/details?id=io.github.trojan_gfw.igniter){:target="\_blank"}{:rel="noopener noreferrer"}
 
 {% highlight bash %}
 trojan://your-password@helper.example.com:443#hope
@@ -303,18 +303,20 @@ but with penalty of disabling _CDN Proxy shield_, so there is a chance your serv
 
 ### Bonus #4 (iOS client)
 
-[NapsternetV <i class="fa-solid fa-arrow-up-right-from-square"/>](https://apps.apple.com/us/app/napsternetv/id1629465476){:target="_blank"}{:rel="noopener noreferrer"} did work as client but same as Android doesn't work with _CDN Proxy status_ on. Maybe this issue is related to how cloudflare handles SSL between CDN servers and your server, so you may have luck with another CDN provider.
+[NapsternetV <i class="fa-solid fa-arrow-up-right-from-square"/>](https://apps.apple.com/us/app/napsternetv/id1629465476){:target="_blank"}{:rel="noopener noreferrer"} did work as client but same as Android doesn't work with \_CDN Proxy status_ on. Maybe this issue is related to how cloudflare handles SSL between CDN servers and your server, so you may have luck with another CDN provider.
 
 <details open><summary>NapsternetV config</summary>
 {% highlight json %}
 
 {"routing":{"domainStrategy":"Asls"},"inbounds":[{"sniffing":{"enabled":false},"listen":"127.0.0.1","protocol":"socks","settings":{"udp":true,"auth":"noauth","userLevel":8},"tag":"socks","port":10808}],"outbounds":[{"mux":{"enabled":false},"streamSettings":{"network":"tcp","tlsSettings":{"serverName":"helper.example.com","allowInsecure":true,"fingerprint":"chrome"},"security":"tls"},"protocol":"trojan","settings":{"servers":[{"password":"your-password","port":443,"method":"aes-128-cfb","ota":false,"level":8,"address":"helper.example.com"}]}}],"log":{"loglevel":"none"},"dns":{"servers":["8.8.8.8","8.8.4.4"]}}
 {% endhighlight %}
+
 </details>
 
-### Bonus #5 ([Privoxy <i class="fa-solid fa-arrow-up-right-from-square"/>](https://www.privoxy.org/){:target="_blank"}{:rel="noopener noreferrer"} http proxy use this socks proxy)
+### Bonus #5 ([Privoxy <i class="fa-solid fa-arrow-up-right-from-square"/>](https://www.privoxy.org/){:target="\_blank"}{:rel="noopener noreferrer"} http proxy use this socks proxy)
 
 Simply add following line to your _/etc/privoxy/config_
+
 <details open><summary>/etc/privoxy/config</summary>
 {% highlight bash %}
 forward-socks5t   /               127.0.0.1:1080 .
