@@ -34,7 +34,7 @@ In this post we are going to install [Knative platform <i class="fa-solid fa-arr
   - 30G disk (make sure you could add more storage if needed)
 - [x] A domain name (e.g. example.com)
 
-First make sure your server doesn't not have any limitation to access internet and docker registries<!--, and if it does maybe [this post <i class="fa-solid fa-arrow-up-right-from-square"/>]({% post_url 2023-05-12-use-cdn-to-bypass-ip-blocking %}){:target="_blank"}{:rel="noopener noreferrer"} could help you-->.
+First make sure your server doesn't not have any limitation to access internet and docker registries<!--, and if it does maybe [this post <i class="fa-solid fa-arrow-up-right-from-square"/>](){:target="_blank"}{:rel="noopener noreferrer"} could help you-->.
 
 ### Tested environment
 
