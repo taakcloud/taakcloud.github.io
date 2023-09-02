@@ -1,0 +1,1019 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="https://docs.taakcloud.com/feed.xml" rel="self" type="application/atom+xml" /><link href="https://docs.taakcloud.com/" rel="alternate" type="text/html" /><updated>2023-09-02T04:57:21+00:00</updated><id>https://docs.taakcloud.com/feed.xml</id><title type="html">Taak</title><subtitle>Docs</subtitle><entry><title type="html">Go Serverless and save the planet</title><link href="https://docs.taakcloud.com/blog/go-serverless-and-save-the-planet/" rel="alternate" type="text/html" title="Go Serverless and save the planet" /><published>2023-05-21T08:08:00+00:00</published><updated>2023-05-21T08:08:00+00:00</updated><id>https://docs.taakcloud.com/blog/go-serverless-and-save-the-planet</id><content type="html" xml:base="https://docs.taakcloud.com/blog/go-serverless-and-save-the-planet/"><![CDATA[<p class="tofigure"><img src="/assets/img/go-serverless-and-save-the-planet/cover.jpg" alt="Cover image" title="PHOTO: ILLUSTRATED FOR TERRAFORMATION BY JAMES YAMASAKI" /></p>
+
+<p>With Serverless we could scale down to zero, and underlining hardware could be shared between many modules of our applications. Using hardware only when is needed for where is needed the most(with auto scaling) is a key to increase performance while reducing costs. So as result with less servers we do contribute to cooling down the planet. It’s amazing to see that many young people are trying to save the planet from global warming. It seems a power transition is happening(e.g. in Europe) and we could expect a better decisions in continue 🤞. Technologies also could help us in this path and let’s hope we can go forward and become multiplanetary species even. What this post could do today is, to encourage people in software development to consider solutions which are more friendly to planet earth and help each other to adopt those solutions. Having said that some people think Trees are a faster solution to climate change, which frankly is simple and practical for getting into an action ✌.</p>
+
+<h3 id="cloud-native-computing-foundation-cncf">Cloud Native Computing Foundation (CNCF)</h3>
+
+<p><a href="https://landscape.cncf.io/serverless?fullscreen=yes&amp;zoom=150" target="\_blank" rel="noopener noreferrer">landscape.cncf.io/serverless <i class="fa-solid fa-arrow-up-right-from-square"></i></a> is a great place to see what is happening with Serverless world and to compare projects based on stars, commit frequencies, etc. It worth your time to evaluate available options and comparing them before adopting them. And/or find a domain expert in the Serverless world and follow their advises.</p>
+
+<h4 id="knative-platform">Knative platform</h4>
+
+<p>In this post we are going to install <a href="https://knative.dev/" target="\_blank" rel="noopener noreferrer">Knative platform <i class="fa-solid fa-arrow-up-right-from-square"></i></a> and config it for production use with minimum required hardware. Why Knative? for me it was <a href="https://www.salaboy.com/2021/11/30/my-story-with-knative/" target="\_blank" rel="noopener noreferrer">this post <i class="fa-solid fa-arrow-up-right-from-square"></i></a> at first and after reading <a href="http://mng.bz/jjKP" target="\_blank" rel="noopener noreferrer">Continuous Delivery for Kubernetes <i class="fa-solid fa-arrow-up-right-from-square"></i></a> book, I was sure Kubernetes and Knative need to be in my Serverless adventure’s backpack. Plus I do live in a 3rd world country, which means no AWS, no easy access to ready to use public cloud providers. But renting a server(with below spec) could be as cheap as $8 a month. So some people are forced to go with self-host option and this post may help them.</p>
+
+<h2 id="complete-guide-to-self-host-the-knative-platform">Complete guide to self-host the Knative platform</h2>
+
+<h3 id="requirements">Requirements</h3>
+
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" checked="checked" />A server with a public IP(v4) address (e.g. 13.49.80.99)
+    <ul>
+      <li>8 core CPU (6 core could work also)</li>
+      <li>16G ram (6G could work also)</li>
+      <li>30G disk (make sure you could add more storage if needed)</li>
+    </ul>
+  </li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" checked="checked" />A domain name (e.g. example.com)</li>
+</ul>
+
+<p>First make sure your server doesn’t not have any limitation to access internet and docker registries<!--, and if it does maybe [this post <i class="fa-solid fa-arrow-up-right-from-square"/>](){:target="_blank"}{:rel="noopener noreferrer"} could help you-->.</p>
+
+<h3 id="tested-environment">Tested environment</h3>
+
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" checked="checked" />Ubuntu 20.04 LTS</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" checked="checked" />Microk8s 1.27/stable</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" checked="checked" />Istio 1.17.2</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" checked="checked" />Knative 1.10.1</li>
+</ul>
+
+<h3 id="required-dns-records">Required DNS Records</h3>
+
+<p>Following screenshot shows required type <em>A</em> DNS Records.</p>
+
+<p class="tofigure"><img src="/assets/img/go-serverless-and-save-the-planet/dns-records.png" alt="A DNS Records" title="A DNS Records (at cloudflare)" /></p>
+
+<h3 id="install-microk8s">Install Microk8s</h3>
+
+<p>Microk8s is known as a lightweight Kubernetes which is optimized to use minium possible resources and still offers what a normal Kubernetes could do. so it somehow matches with our overall goal to go Serverless with less servers.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nb">sudo </span>snap <span class="nb">install </span>microk8s <span class="nt">--classic</span> <span class="nt">--channel</span><span class="o">=</span>1.27/stable</code></pre></figure>
+
+<p>At the moment version 1.27 is the latest stable version of Microk8s, you could check <a href="https://microk8s.io/docs/setting-snap-channel" target="\_blank" rel="noopener noreferrer">here <i class="fa-solid fa-arrow-up-right-from-square"></i></a> to choose the right channel. And please note, different version, might have it’s own differences in continue, and obviously you might face an issue, which we didn’t.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nb">sudo </span>usermod <span class="nt">-a</span> <span class="nt">-G</span> microk8s <span class="nv">$USER</span>
+<span class="nb">sudo chown</span> <span class="nt">-f</span> <span class="nt">-R</span> <span class="nv">$USER</span> ~/.kube
+su - <span class="nv">$USER</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">microk8s status <span class="nt">--wait-ready</span></code></pre></figure>
+
+<details open=""><summary>output</summary>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">microk8s is running
+high-availability: no
+  datastore master nodes: 127.0.0.1:19001
+  datastore standby nodes: none
+addons:
+  enabled:
+    dns                  <span class="c"># (core) CoreDNS</span>
+    ha-cluster           <span class="c"># (core) Configure high availability on the current node</span>
+    helm                 <span class="c"># (core) Helm - the package manager for Kubernetes</span>
+    helm3                <span class="c"># (core) Helm 3 - the package manager for Kubernetes</span>
+  disabled:
+    cert-manager         <span class="c"># (core) Cloud native certificate management</span>
+    community            <span class="c"># (core) The community addons repository</span>
+    dashboard            <span class="c"># (core) The Kubernetes dashboard</span>
+    gpu                  <span class="c"># (core) Automatic enablement of Nvidia CUDA</span>
+    host-access          <span class="c"># (core) Allow Pods connecting to Host services smoothly</span>
+    hostpath-storage     <span class="c"># (core) Storage class; allocates storage from host directory</span>
+    ingress              <span class="c"># (core) Ingress controller for external access</span>
+    kube-ovn             <span class="c"># (core) An advanced network fabric for Kubernetes</span>
+    mayastor             <span class="c"># (core) OpenEBS MayaStor</span>
+    metallb              <span class="c"># (core) Loadbalancer for your Kubernetes cluster</span>
+    metrics-server       <span class="c"># (core) K8s Metrics Server for API access to service metrics</span>
+    minio                <span class="c"># (core) MinIO object storage</span>
+    observability        <span class="c"># (core) A lightweight observability stack for logs, traces and metrics</span>
+    prometheus           <span class="c"># (core) Prometheus operator for monitoring and logging</span>
+    rbac                 <span class="c"># (core) Role-Based Access Control for authorisation</span>
+    registry             <span class="c"># (core) Private image registry exposed on localhost:32000</span>
+    storage              <span class="c"># (core) Alias to hostpath-storage add-on, deprecated</span></code></pre></figure>
+
+</details>
+
+<h4 id="optional---disabling-ha-cluster">Optional - disabling ha-cluster</h4>
+
+<p>Personally I think if you don’t have a fast private network between your servers or you don’t have a fast storage shared between your servers then Microk8s high availability feature might not work quite well as expected. In my case CPU usage was about 20% always busy. Unfortunately this decision is not something you could change later in your deployment, switch between ha-cluster and none ha-cluster will reset your cluster to initial state(removes everything!). In this setup we are going to have 1 server 1 node, and we prefer less cpu usage, so we did use following command to disable it.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">microk8s disable ha-cluster <span class="nt">--force</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">microk8s kubectl get all <span class="nt">-A</span></code></pre></figure>
+
+<details open=""><summary>output</summary>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">NAMESPACE   NAME                 TYPE        CLUSTER-IP     EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>   AGE
+default     service/kubernetes   ClusterIP   10.152.183.1   &lt;none&gt;        443/TCP   77s</code></pre></figure>
+
+</details>
+
+<h5 id="re-enable-dns-addons">Re-enable dns addons</h5>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">microk8s <span class="nb">enable </span>dns</code></pre></figure>
+
+<h3 id="istio-as-ingress-controller-and-network-layer-for-knative">Istio as ingress controller and network layer for Knative</h3>
+
+<p>In this guide we are going to use Istioctl to install Istio and we will have <em>istio-system</em> and <em>istio-ingress</em> namespaces separated for having better security.</p>
+
+<p>First we need to copy Microk8s config to default place for current user</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nb">mkdir</span> <span class="nt">-p</span> ~/.kube
+microk8s config <span class="o">&gt;</span> ~/.kube/config</code></pre></figure>
+
+<p>Then add kubectl alias</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nb">alias </span><span class="nv">kubectl</span><span class="o">=</span><span class="s1">'microk8s kubectl'</span></code></pre></figure>
+
+<p class="right"><em>~/.bashrc</em></p>
+
+<p>Or install kubectl by following command (if you want to use <a href="https://krew.sigs.k8s.io/" target="\_blank" rel="noopener noreferrer">krew <i class="fa-solid fa-arrow-up-right-from-square"></i></a> plugins)</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nb">sudo </span>snap <span class="nb">install </span>kubectl <span class="nt">--classic</span></code></pre></figure>
+
+<p>Then</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell"><span class="nb">mkdir</span> ~/etc
+<span class="nb">cd</span> ~/etc
+curl <span class="nt">-L</span> https://istio.io/downloadIstio | sh -
+<span class="nb">cd</span> ~/etc/istio-1.17.2/
+<span class="nb">export </span><span class="nv">PATH</span><span class="o">=</span><span class="nv">$PWD</span>/bin:<span class="nv">$PATH</span>
+istioctl <span class="nb">install</span> <span class="nt">--set</span> <span class="nv">profile</span><span class="o">=</span>minimal <span class="nt">-y</span></code></pre></figure>
+
+<p>Check installation</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl get all <span class="nt">-n</span> istio-system</code></pre></figure>
+
+<details open=""><summary>output</summary>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">NAME                         READY   STATUS    RESTARTS   AGE
+pod/istiod-57c965889-pdpv5   1/1     Running   0          28m
+
+NAME TYPE CLUSTER-IP EXTERNAL-IP PORT<span class="o">(</span>S<span class="o">)</span> AGE
+service/istiod ClusterIP 10.152.183.139 &lt;none&gt; 15010/TCP,15012/TCP,443/TCP,15014/TCP 28m
+
+NAME READY UP-TO-DATE AVAILABLE AGE
+deployment.apps/istiod 1/1 1 1 28m
+
+NAME DESIRED CURRENT READY AGE
+replicaset.apps/istiod-57c965889 1 1 1 28m
+
+NAME REFERENCE TARGETS MINPODS MAXPODS REPLICAS AGE
+horizontalpodautoscaler.autoscaling/istiod Deployment/istiod &lt;unknown&gt;/80% 1 5 1 28m</code></pre></figure>
+
+
+</details>
+
+<h4 id="install-istio-ingress-with-istiooperator">Install istio-ingress with IstioOperator</h4>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">istioctl operator init</code></pre></figure>
+
+<details open=""><summary>output</summary>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">Installing operator controller <span class="k">in </span>namespace: istio-operator using image: docker.io/istio/operator:1.17.2
+Operator controller will watch namespaces: istio-system
+✔ Istio operator installed
+✔ Installation <span class="nb">complete</span></code></pre></figure>
+
+</details>
+
+<details open=""><summary>istio-ingress-operator.yaml</summary>
+
+<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">install.istio.io/v1alpha1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">IstioOperator</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">ingress</span>
+  <span class="na">namespace</span><span class="pi">:</span> <span class="s">istio-system</span>
+<span class="na">spec</span><span class="pi">:</span>
+  <span class="na">profile</span><span class="pi">:</span> <span class="s">empty</span> <span class="c1"># Do not install CRDs or the control plane</span>
+  <span class="na">components</span><span class="pi">:</span>
+    <span class="na">ingressGateways</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">istio-ingressgateway</span>
+      <span class="na">namespace</span><span class="pi">:</span> <span class="s">istio-ingress</span>
+      <span class="na">enabled</span><span class="pi">:</span> <span class="no">true</span>
+      <span class="na">label</span><span class="pi">:</span>
+        <span class="c1"># Set a unique label for the gateway. This is required to ensure Gateways</span>
+        <span class="c1"># can select this workload</span>
+        <span class="na">istio</span><span class="pi">:</span> <span class="s">ingressgateway</span>
+  <span class="na">values</span><span class="pi">:</span>
+    <span class="na">gateways</span><span class="pi">:</span>
+      <span class="na">istio-ingressgateway</span><span class="pi">:</span>
+        <span class="c1"># Enable gateway injection</span>
+        <span class="na">injectionTemplate</span><span class="pi">:</span> <span class="s">gateway</span></code></pre></figure>
+
+</details>
+<p class="right"><em>istio-ingress-operator.yaml</em></p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl create ns istio-ingress
+kubectl apply <span class="nt">-f</span> istio-ingress-operator.yaml</code></pre></figure>
+
+<p>Verify is ready</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl get all <span class="nt">-n</span> istio-ingress</code></pre></figure>
+
+<details open=""><summary>output</summary>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">NAME                                        READY   STATUS    RESTARTS   AGE
+pod/istio-ingressgateway-77b5b78896-bwvjw   1/1     Running   0          4m48s
+
+NAME TYPE CLUSTER-IP EXTERNAL-IP PORT<span class="o">(</span>S<span class="o">)</span> AGE
+service/istio-ingressgateway LoadBalancer 10.152.183.50 &lt;pending&gt; 15021:30688/TCP,80:30792/TCP,443:32182/TCP 4m48s
+
+NAME READY UP-TO-DATE AVAILABLE AGE
+deployment.apps/istio-ingressgateway 1/1 1 1 4m48s
+
+NAME DESIRED CURRENT READY AGE
+replicaset.apps/istio-ingressgateway-77b5b78896 1 1 1 4m48s
+
+NAME REFERENCE TARGETS MINPODS MAXPODS REPLICAS AGE
+horizontalpodautoscaler.autoscaling/istio-ingressgateway Deployment/istio-ingressgateway &lt;unknown&gt;/80% 1 5 1 4m48s</code></pre></figure>
+
+
+</details>
+
+<h4 id="enable-metallb-addons">Enable metallb addons</h4>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">microk8s <span class="nb">enable </span>metallb:10.0.0.5-10.0.0.250</code></pre></figure>
+
+<p>After successful installation, then your service must resolve external-ip from bare metal load balancer</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl get svc <span class="nt">-n</span> istio-ingress</code></pre></figure>
+
+<details open=""><summary>output</summary>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">NAME                   TYPE           CLUSTER-IP      EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>                                      AGE
+istio-ingressgateway   LoadBalancer   10.152.183.50   10.0.0.5      15021:30688/TCP,80:30792/TCP,443:32182/TCP   17m</code></pre></figure>
+
+</details>
+
+<h4 id="bind-istio-ingressgateway-to-host-port-80-and-443">Bind istio-ingressgateway to host port 80 and 443</h4>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl edit deploy istio-ingressgateway <span class="nt">-n</span> istio-ingress</code></pre></figure>
+
+<details open=""><summary>istio-ingressgateway</summary>
+
+<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="na">spec</span><span class="pi">:</span>
+  <span class="na">template</span><span class="pi">:</span>
+    <span class="na">spec</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="na">env</span><span class="pi">:</span>
+        <span class="na">ports</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="na">containerPort</span><span class="pi">:</span> <span class="m">15021</span>
+          <span class="na">protocol</span><span class="pi">:</span> <span class="s">TCP</span>
+        <span class="pi">-</span> <span class="na">containerPort</span><span class="pi">:</span> <span class="m">8080</span>
+          <span class="na">hostPort</span><span class="pi">:</span> <span class="m">80</span>          <span class="c1"># &lt;- Add this line</span>
+          <span class="na">protocol</span><span class="pi">:</span> <span class="s">TCP</span>
+        <span class="pi">-</span> <span class="na">containerPort</span><span class="pi">:</span> <span class="m">8443</span>
+          <span class="na">hostPort</span><span class="pi">:</span> <span class="m">443</span>         <span class="c1"># &lt;- Add this line too</span></code></pre></figure>
+
+
+</details>
+
+<p>Please note because of this binding, we can’t scale more than one pod for a node, so in our case we set <em>replicas</em> to 1. And for production environment with more thant one node, we could set <em>replicas</em> to count of nodes and with a logic that each node should have one <em>istio-ingressgateway</em> pod.</p>
+
+<h3 id="enable-cert-manager-addons">Enable cert-manager addons</h3>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">microk8s <span class="nb">enable </span>cert-manager</code></pre></figure>
+
+<p>Verify is ready</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl get all <span class="nt">-n</span> cert-manager</code></pre></figure>
+
+<details open=""><summary>output</summary>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">NAME                                           READY   STATUS    RESTARTS   AGE
+pod/cert-manager-5d6bc46969-btqdd              1/1     Running   0          5m58s
+pod/cert-manager-cainjector-7d8b8bb6b8-rjsx5   1/1     Running   0          5m58s
+pod/cert-manager-webhook-5c5c5bb457-6zjcp      1/1     Running   0          5m58s
+
+NAME TYPE CLUSTER-IP EXTERNAL-IP PORT<span class="o">(</span>S<span class="o">)</span> AGE
+service/cert-manager ClusterIP 10.152.183.71 &lt;none&gt; 9402/TCP 5m58s
+service/cert-manager-webhook ClusterIP 10.152.183.177 &lt;none&gt; 443/TCP 5m58s
+
+NAME READY UP-TO-DATE AVAILABLE AGE
+deployment.apps/cert-manager 1/1 1 1 5m58s
+deployment.apps/cert-manager-cainjector 1/1 1 1 5m58s
+deployment.apps/cert-manager-webhook 1/1 1 1 5m58s
+
+NAME DESIRED CURRENT READY AGE
+replicaset.apps/cert-manager-5d6bc46969 1 1 1 5m58s
+replicaset.apps/cert-manager-cainjector-7d8b8bb6b8 1 1 1 5m58s
+replicaset.apps/cert-manager-webhook-5c5c5bb457 1 1 1 5m58s</code></pre></figure>
+
+
+</details>
+
+<h4 id="zerossl-clusterissuer">Zerossl ClusterIssuer</h4>
+
+<details open=""><summary>zerossl-cluster-issuer.yaml</summary>
+
+<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">Secret</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">namespace</span><span class="pi">:</span> <span class="s">cert-manager</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">zerossl-eab</span>
+<span class="na">stringData</span><span class="pi">:</span>
+  <span class="na">secret</span><span class="pi">:</span> <span class="s">&lt;CHANGE-TO-ACTUAL-SECRET&gt;</span>
+<span class="nn">---</span>
+<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">Secret</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">namespace</span><span class="pi">:</span> <span class="s">cert-manager</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">cloudflare-api-token</span>
+<span class="na">type</span><span class="pi">:</span> <span class="s">Opaque</span>
+<span class="na">stringData</span><span class="pi">:</span>
+  <span class="na">api-token</span><span class="pi">:</span> <span class="s">&lt;CHANGE-TO-ACTUAL-CLOUDFLARE-API-TOKEN&gt;</span>
+<span class="nn">---</span>
+<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">cert-manager.io/v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">ClusterIssuer</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">zerossl-prod</span>
+<span class="na">spec</span><span class="pi">:</span>
+  <span class="na">acme</span><span class="pi">:</span>
+    <span class="c1"># The ACME server URL</span>
+    <span class="na">server</span><span class="pi">:</span> <span class="s">https://acme.zerossl.com/v2/DV90</span>
+    <span class="na">externalAccountBinding</span><span class="pi">:</span>
+      <span class="na">keyID</span><span class="pi">:</span> <span class="s">&lt;CHANGE-TO-ACTUAL-KEY-ID&gt;</span>
+      <span class="na">keySecretRef</span><span class="pi">:</span>
+        <span class="na">name</span><span class="pi">:</span> <span class="s">zerossl-eab</span>
+        <span class="na">key</span><span class="pi">:</span> <span class="s">secret</span>
+    <span class="c1"># Name of a secret used to store the ACME account private key</span>
+    <span class="na">privateKeySecretRef</span><span class="pi">:</span>
+      <span class="na">name</span><span class="pi">:</span> <span class="s">zerossl-prod</span>
+    <span class="na">solvers</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="na">dns01</span><span class="pi">:</span>
+        <span class="na">cloudflare</span><span class="pi">:</span>
+          <span class="na">apiTokenSecretRef</span><span class="pi">:</span>
+            <span class="na">name</span><span class="pi">:</span> <span class="s">cloudflare-api-token</span>
+            <span class="na">key</span><span class="pi">:</span> <span class="s">api-token</span></code></pre></figure>
+
+</details>
+<p class="right"><em>zerossl-cluster-issuer.yaml</em></p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl apply <span class="nt">-f</span> zerossl-cluster-issuer.yaml</code></pre></figure>
+
+<p>Verify is ready</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl get ClusterIssuer</code></pre></figure>
+
+<details open=""><summary>output</summary>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">NAME           READY   AGE
+zerossl-prod   True    6s</code></pre></figure>
+
+</details>
+
+<h4 id="certificate-for-istio-ingress-namespace">Certificate for istio-ingress namespace</h4>
+
+<details open=""><summary>certificate.yaml</summary>
+
+<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">cert-manager.io/v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">Certificate</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">generation</span><span class="pi">:</span> <span class="m">1</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">star-example-com-tls</span>
+  <span class="na">namespace</span><span class="pi">:</span> <span class="s">istio-ingress</span>
+<span class="na">spec</span><span class="pi">:</span>
+  <span class="na">dnsNames</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s2">"</span><span class="s">example.com"</span>
+  <span class="pi">-</span> <span class="s2">"</span><span class="s">*.example.com"</span>
+  <span class="pi">-</span> <span class="s2">"</span><span class="s">*.s.example.com"</span>
+  <span class="pi">-</span> <span class="s2">"</span><span class="s">*.default.s.example.com"</span>
+  <span class="na">issuerRef</span><span class="pi">:</span>
+    <span class="na">group</span><span class="pi">:</span> <span class="s">cert-manager.io</span>
+    <span class="na">kind</span><span class="pi">:</span> <span class="s">ClusterIssuer</span>
+    <span class="na">name</span><span class="pi">:</span> <span class="s">zerossl-prod</span>
+  <span class="na">secretName</span><span class="pi">:</span> <span class="s">star-example-com-tls</span>
+  <span class="na">usages</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">digital signature</span>
+  <span class="pi">-</span> <span class="s">key encipherment</span></code></pre></figure>
+
+</details>
+<p class="right"><em>certificate.yaml</em></p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl apply <span class="nt">-f</span> certificate.yaml</code></pre></figure>
+
+<p>Verify is ready</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl get Certificate <span class="nt">-n</span> istio-ingress</code></pre></figure>
+
+<details open=""><summary>output</summary>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">NAME                     READY   SECRET                   AGE
+star-example-com-tls   True    star-example-com-tls   7m38s</code></pre></figure>
+
+</details>
+
+<h4 id="istio-ingressclass">Istio IngressClass</h4>
+
+<details open=""><summary>istio-ingress-class.yaml</summary>
+
+<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">networking.k8s.io/v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">IngressClass</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">istio</span>
+<span class="na">spec</span><span class="pi">:</span>
+  <span class="na">controller</span><span class="pi">:</span> <span class="s">istio.io/ingress-controller</span></code></pre></figure>
+
+</details>
+<p class="right"><em>istio-ingress-class.yaml</em></p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl apply <span class="nt">-f</span> istio-ingress-class.yaml</code></pre></figure>
+
+<p>Verify is ready</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl get IngressClass</code></pre></figure>
+
+<details open=""><summary>output</summary>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">NAME    CONTROLLER                    PARAMETERS   AGE
+istio   istio.io/ingress-controller   &lt;none&gt;       9s</code></pre></figure>
+
+</details>
+
+<h4 id="optional---nfs-persistent-volumes">Optional - NFS Persistent Volumes</h4>
+
+<p>In continue we are going to use NFS persistent volumes, and <a href="https://microk8s.io/docs/nfs" target="\_blank" rel="noopener noreferrer">this doc <i class="fa-solid fa-arrow-up-right-from-square"></i></a> shows required steps and at the end you should be able to run following command and compare your output.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">microk8s kubectl get storageclass</code></pre></figure>
+
+<details open=""><summary>output</summary>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">NAME                PROVISIONER      RECLAIMPOLICY   VOLUMEBINDINGMODE   ALLOWVOLUMEEXPANSION   AGE
+nfs-csi <span class="o">(</span>default<span class="o">)</span>   nfs.csi.k8s.io   Delete          Immediate           <span class="nb">true                   </span>72s</code></pre></figure>
+
+</details>
+
+<p>If your StorageClass is not mark as default, you could use following command.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">microk8s kubectl patch storageclass nfs-csi <span class="nt">-p</span> <span class="s1">'{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'</span></code></pre></figure>
+
+<h4 id="optional---enable-registry-addons">Optional - Enable registry addons</h4>
+
+<details open=""><summary>output</summary>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">microk8s <span class="nb">enable </span>registry</code></pre></figure>
+
+</details>
+
+<h5 id="registry-ingress">Registry ingress</h5>
+
+<details open=""><summary>registry-ingress.yaml</summary>
+
+<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">networking.k8s.io/v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">Ingress</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">registry</span>
+  <span class="na">namespace</span><span class="pi">:</span> <span class="s">container-registry</span>
+  <span class="na">annotations</span><span class="pi">:</span>
+    <span class="na">kubernetes.io/ingress.class</span><span class="pi">:</span> <span class="s">istio</span>
+    <span class="na">cert-manager.io/cluster-issuer</span><span class="pi">:</span> <span class="s2">"</span><span class="s">zerossl-prod"</span>
+<span class="na">spec</span><span class="pi">:</span>
+  <span class="na">rules</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">host</span><span class="pi">:</span> <span class="s">reg.example.com</span>
+    <span class="na">http</span><span class="pi">:</span>
+      <span class="na">paths</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="na">path</span><span class="pi">:</span> <span class="s">/</span>
+        <span class="na">pathType</span><span class="pi">:</span> <span class="s">Prefix</span>
+        <span class="na">backend</span><span class="pi">:</span>
+          <span class="na">service</span><span class="pi">:</span>
+            <span class="na">name</span><span class="pi">:</span> <span class="s">registry</span>
+            <span class="na">port</span><span class="pi">:</span>
+              <span class="na">number</span><span class="pi">:</span> <span class="m">5000</span>
+  <span class="na">tls</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">hosts</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">reg.example.com</span>
+    <span class="na">secretName</span><span class="pi">:</span> <span class="s">star-example-com-tls</span></code></pre></figure>
+
+</details>
+<p class="right"><em>registry-ingress.yaml</em></p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl apply <span class="nt">-f</span> registry-ingress.yaml</code></pre></figure>
+
+<p>Verify is ready</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl get ingress <span class="nt">-n</span> container-registry</code></pre></figure>
+
+<details open=""><summary>output</summary>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">NAME       CLASS    HOSTS               ADDRESS   PORTS     AGE
+registry   &lt;none&gt;   reg.example.com             80, 443   5m39s</code></pre></figure>
+
+</details>
+<p>At this point you should be able to access your server from outside over https protocol</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">curl https://reg.example.com/v2/</code></pre></figure>
+
+<details open=""><summary>output</summary>
+
+<figure class="highlight"><pre><code class="language-json" data-lang="json"><span class="p">{}</span></code></pre></figure>
+
+</details>
+
+<h3 id="knative-serving-installation">Knative-serving installation</h3>
+
+<p>We are going to <a href="https://knative.dev/docs/install/operator/knative-with-operators/" target="\_blank" rel="noopener noreferrer">install Knative by using Knative Operator <i class="fa-solid fa-arrow-up-right-from-square"></i></a> and latest version at the time is 1.10.1.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl apply <span class="nt">-f</span> https://github.com/knative/operator/releases/download/knative-v1.10.1/operator.yaml</code></pre></figure>
+
+<p>Verify is ready</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl get deployment knative-operator <span class="nt">-n</span> default</code></pre></figure>
+
+<details open=""><summary>output</summary>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">NAME               READY   UP-TO-DATE   AVAILABLE   AGE
+knative-operator   1/1     1            1           12m</code></pre></figure>
+
+</details>
+
+<details open=""><summary>knative-serving.yaml</summary>
+
+<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">Namespace</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">knative-serving</span>
+<span class="nn">---</span>
+<span class="na">apiVersion</span><span class="pi">:</span> <span class="s">operator.knative.dev/v1beta1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">KnativeServing</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">knative-serving</span>
+  <span class="na">namespace</span><span class="pi">:</span> <span class="s">knative-serving</span>
+<span class="na">spec</span><span class="pi">:</span>
+  <span class="na">version</span><span class="pi">:</span> <span class="s2">"</span><span class="s">1.10"</span>
+  <span class="na">ingress</span><span class="pi">:</span>
+    <span class="na">istio</span><span class="pi">:</span>
+      <span class="na">enabled</span><span class="pi">:</span> <span class="no">true</span>
+  <span class="na">config</span><span class="pi">:</span>
+    <span class="na">domain</span><span class="pi">:</span>
+      <span class="s2">"</span><span class="s">s.example.com"</span><span class="err">:</span> <span class="s2">"</span><span class="s">"</span>
+    <span class="na">network</span><span class="pi">:</span>
+      <span class="na">auto-tls</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Enabled"</span>
+      <span class="na">autocreate-cluster-domain-claims</span><span class="pi">:</span> <span class="s2">"</span><span class="s">true"</span>
+      <span class="na">namespace-wildcard-cert-selector</span><span class="pi">:</span> <span class="s1">'</span><span class="s">{"matchExpressions":</span><span class="nv"> </span><span class="s">[{"key":"networking.knative.dev/enableWildcardCert",</span><span class="nv"> </span><span class="s">"operator":</span><span class="nv"> </span><span class="s">"In",</span><span class="nv"> </span><span class="s">"values":["true"]}]}'</span>
+    <span class="na">istio</span><span class="pi">:</span>
+      <span class="na">gateway.knative-serving.knative-ingress-gateway</span><span class="pi">:</span> <span class="s2">"</span><span class="s">istio-ingressgateway.istio-ingress.svc.cluster.local"</span>
+      <span class="na">local-gateway.knative-serving.knative-local-gateway</span><span class="pi">:</span> <span class="s2">"</span><span class="s">knative-local-gateway.istio-ingress.svc.cluster.local"</span>
+    <span class="na">certmanager</span><span class="pi">:</span>
+      <span class="na">issuerRef</span><span class="pi">:</span> <span class="pi">|</span>
+        <span class="s">kind: ClusterIssuer</span>
+        <span class="s">name: zerossl-prod</span></code></pre></figure>
+
+</details>
+<p class="right"><em>knative-serving.yaml</em></p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl apply <span class="nt">-f</span> knative-serving.yaml</code></pre></figure>
+
+<p>Verify is ready</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl get KnativeServing knative-serving <span class="nt">-n</span> knative-serving</code></pre></figure>
+
+<details open=""><summary>output</summary>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">NAME              VERSION   READY   REASON
+knative-serving   1.10.1    True</code></pre></figure>
+
+</details>
+
+<h4 id="knative-istio-integration">Knative istio integration</h4>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl apply <span class="nt">-f</span> https://github.com/knative/net-istio/releases/download/knative-v1.10.0/net-istio.yaml</code></pre></figure>
+
+<details open=""><summary>knative-peer-authentication.yaml</summary>
+
+<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="na">apiVersion</span><span class="pi">:</span> <span class="s2">"</span><span class="s">security.istio.io/v1beta1"</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s2">"</span><span class="s">PeerAuthentication"</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s2">"</span><span class="s">default"</span>
+  <span class="na">namespace</span><span class="pi">:</span> <span class="s2">"</span><span class="s">knative-serving"</span>
+<span class="na">spec</span><span class="pi">:</span>
+  <span class="na">mtls</span><span class="pi">:</span>
+    <span class="na">mode</span><span class="pi">:</span> <span class="s">PERMISSIVE</span></code></pre></figure>
+
+</details>
+<p class="right"><em>knative-peer-authentication.yaml</em></p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl apply <span class="nt">-f</span> knative-peer-authentication.yaml</code></pre></figure>
+
+<h4 id="knative-cert-manager-integration">Knative cert-manager integration</h4>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl apply <span class="nt">-f</span> https://github.com/knative/net-certmanager/releases/download/knative-v1.10.0/release.yaml</code></pre></figure>
+
+<p>Verify is ready</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl get deployment net-certmanager-controller <span class="nt">-n</span> knative-serving</code></pre></figure>
+
+<details open=""><summary>output</summary>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">NAME                         READY   UP-TO-DATE   AVAILABLE   AGE
+net-certmanager-controller   1/1     1            1           95s</code></pre></figure>
+
+</details>
+
+<h5 id="enable-wildcard-certificate-for-default-namespace">Enable wildcard Certificate for default namespace</h5>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl label ns default networking.knative.dev/enableWildcardCert<span class="o">=</span><span class="nb">true</span></code></pre></figure>
+
+<h4 id="ensure-configmaps-updated-successfully">Ensure configmaps updated successfully</h4>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl get configmap config-istio <span class="nt">-n</span> knative-serving <span class="nt">-o</span> yaml
+kubectl get configmap config-domain <span class="nt">-n</span> knative-serving <span class="nt">-o</span> yaml
+kubectl get configmap config-network <span class="nt">-n</span> knative-serving <span class="nt">-o</span> yaml
+kubectl get configmap config-certmanager <span class="nt">-n</span> knative-serving <span class="nt">-o</span> yaml</code></pre></figure>
+
+<h3 id="helloworld-service-for-test-serving">HelloWorld service for test serving</h3>
+
+<details open=""><summary>hello-service.yaml</summary>
+
+<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">serving.knative.dev/v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">Service</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">helloworld-go</span>
+  <span class="na">namespace</span><span class="pi">:</span> <span class="s">default</span>
+<span class="na">spec</span><span class="pi">:</span>
+  <span class="na">template</span><span class="pi">:</span>
+    <span class="na">spec</span><span class="pi">:</span>
+      <span class="na">containers</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="na">image</span><span class="pi">:</span> <span class="s">ghcr.io/knative/helloworld-go:latest</span>
+          <span class="na">env</span><span class="pi">:</span>
+            <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">TARGET</span>
+              <span class="na">value</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Go</span><span class="nv"> </span><span class="s">Sample</span><span class="nv"> </span><span class="s">v1"</span></code></pre></figure>
+
+</details>
+<p class="right"><em>hello-service.yaml</em></p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl apply <span class="nt">-f</span> hello-service.yaml</code></pre></figure>
+
+<p>Verify is ready</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kctl get ksvc <span class="nt">-n</span> default</code></pre></figure>
+
+<details open=""><summary>output</summary>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">NAME            URL                                             LATESTCREATED         LATESTREADY           READY   REASON
+helloworld-go   https://helloworld-go.default.s.example.com   helloworld-go-00001   helloworld-go-00001   True</code></pre></figure>
+
+</details>
+
+<p>Finally test helloworld service to be accessible from outside</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">curl https://helloworld-go.default.s.example.com</code></pre></figure>
+
+<details open=""><summary>output</summary>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">Hello Go Sample v1!</code></pre></figure>
+
+</details>
+
+<h3 id="config-custom-domain-for-helloworld-go-servcie">Config custom domain for helloworld-go servcie</h3>
+
+<details open=""><summary>hello-domain-mapping.yaml</summary>
+
+<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml"><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">serving.knative.dev/v1alpha1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">DomainMapping</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">hello.example.com</span>
+  <span class="na">namespace</span><span class="pi">:</span> <span class="s">default</span>
+<span class="na">spec</span><span class="pi">:</span>
+  <span class="na">ref</span><span class="pi">:</span>
+    <span class="na">name</span><span class="pi">:</span> <span class="s">helloworld-go</span>
+    <span class="na">kind</span><span class="pi">:</span> <span class="s">Service</span>
+    <span class="na">apiVersion</span><span class="pi">:</span> <span class="s">serving.knative.dev/v1</span></code></pre></figure>
+
+</details>
+<p class="right"><em>hello-domain-mapping.yaml</em></p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl apply <span class="nt">-f</span> hello-domain-mapping.yaml</code></pre></figure>
+
+<p>Verify is ready</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kctl get domainmapping <span class="nt">-n</span> default</code></pre></figure>
+
+<details open=""><summary>output</summary>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">NAME                  URL                           READY   REASON
+hello.example.com   https://hello.example.com   True</code></pre></figure>
+
+</details>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">curl https://hello.example.com</code></pre></figure>
+
+<details open=""><summary>output</summary>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">Hello Go Sample v1!</code></pre></figure>
+
+</details>
+
+<p>That’s all, in this post we did deploy a Knative service and make it securely available to our customers 🍻.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">kubectl get all <span class="nt">-A</span></code></pre></figure>
+
+<details><summary>output</summary>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">NAMESPACE            NAME                                             READY   STATUS    RESTARTS         AGE
+cert-manager         pod/cert-manager-5d6bc46969-btqdd                1/1     Running   1 <span class="o">(</span>5h51m ago<span class="o">)</span>    24h
+cert-manager         pod/cert-manager-cainjector-7d8b8bb6b8-rjsx5     1/1     Running   1 <span class="o">(</span>5h50m ago<span class="o">)</span>    24h
+cert-manager         pod/cert-manager-webhook-5c5c5bb457-6zjcp        1/1     Running   0                24h
+container-registry   pod/registry-9865b655c-ftngg                     1/1     Running   0                23h
+default              pod/knative-operator-7b7d4bbc7d-pj48l            1/1     Running   0                22h
+default              pod/operator-webhook-74d9489bf8-7vdhr            1/1     Running   0                22h
+istio-ingress        pod/istio-ingressgateway-7f5958c7d9-l2qfc        1/1     Running   0                24h
+istio-operator       pod/istio-operator-79d6df8f9d-m9zkw              1/1     Running   3 <span class="o">(</span>5h51m ago<span class="o">)</span>    25h
+istio-system         pod/istiod-57c965889-pdpv5                       1/1     Running   0                29h
+knative-serving      pod/activator-658c5747b-zzvjm                    1/1     Running   0                21h
+knative-serving      pod/autoscaler-f989fbf86-fzszz                   1/1     Running   0                21h
+knative-serving      pod/autoscaler-hpa-5d7668d747-gs6zs              1/1     Running   0                21h
+knative-serving      pod/controller-64b9dcc975-h4vnq                  1/1     Running   0                21h
+knative-serving      pod/domain-mapping-7b87f895b6-zxbkk              1/1     Running   0                21h
+knative-serving      pod/domainmapping-webhook-54cddcb594-xxmgl       1/1     Running   0                21h
+knative-serving      pod/net-certmanager-controller-575898d58-bv6x5   1/1     Running   0                20h
+knative-serving      pod/net-certmanager-webhook-7cd899c855-pps7t     1/1     Running   0                20h
+knative-serving      pod/net-istio-controller-84cb8b59fb-dxvgq        1/1     Running   0                21h
+knative-serving      pod/net-istio-webhook-8d785b78d-jwqqf            1/1     Running   0                21h
+knative-serving      pod/webhook-7698bcf68f-qxd7f                     1/1     Running   0                21h
+kube-system          pod/coredns-7745f9f87f-lswgs                     1/1     Running   2 <span class="o">(</span>28h ago<span class="o">)</span>      47h
+kube-system          pod/csi-nfs-controller-6f844cdc89-slhdt          3/3     Running   12 <span class="o">(</span>5h51m ago<span class="o">)</span>   30h
+kube-system          pod/csi-nfs-node-r6h7c                           3/3     Running   6 <span class="o">(</span>28h ago<span class="o">)</span>      30h
+kube-system          pod/hostpath-provisioner-58694c9f4b-ztmgq        1/1     Running   3 <span class="o">(</span>5h51m ago<span class="o">)</span>    23h
+metallb-system       pod/controller-8467d88d69-sqlsf                  1/1     Running   0                25h
+metallb-system       pod/speaker-j4b5r                                1/1     Running   0                25h
+
+NAMESPACE NAME TYPE CLUSTER-IP EXTERNAL-IP PORT<span class="o">(</span>S<span class="o">)</span> AGE
+cert-manager service/cert-manager ClusterIP 10.152.183.71 &lt;none&gt; 9402/TCP 24h
+cert-manager service/cert-manager-webhook ClusterIP 10.152.183.177 &lt;none&gt; 443/TCP 24h
+container-registry service/registry NodePort 10.152.183.166 &lt;none&gt; 5000:32000/TCP 23h
+default service/helloworld-go ExternalName &lt;none&gt; knative-local-gateway.istio-ingress.svc.cluster.local 80/TCP 19h
+default service/helloworld-go-00001 ClusterIP 10.152.183.45 &lt;none&gt; 80/TCP,443/TCP 19h
+default service/helloworld-go-00001-private ClusterIP 10.152.183.68 &lt;none&gt; 80/TCP,443/TCP,9090/TCP,9091/TCP,8022/TCP,8012/TCP 19h
+default service/kubernetes ClusterIP 10.152.183.1 &lt;none&gt; 443/TCP 47h
+default service/operator-webhook ClusterIP 10.152.183.107 &lt;none&gt; 9090/TCP,8008/TCP,443/TCP 22h
+istio-ingress service/istio-ingressgateway LoadBalancer 10.152.183.50 10.0.0.5 15021:30688/TCP,80:30792/TCP,443:32182/TCP 25h
+istio-ingress service/knative-local-gateway ClusterIP 10.152.183.228 &lt;none&gt; 80/TCP 21h
+istio-operator service/istio-operator ClusterIP 10.152.183.132 &lt;none&gt; 8383/TCP 25h
+istio-system service/istiod ClusterIP 10.152.183.139 &lt;none&gt; 15010/TCP,15012/TCP,443/TCP,15014/TCP 29h
+istio-system service/knative-local-gateway ClusterIP 10.152.183.216 &lt;none&gt; 80/TCP 21h
+knative-serving service/activator-service ClusterIP 10.152.183.19 &lt;none&gt; 9090/TCP,8008/TCP,80/TCP,81/TCP,443/TCP 21h
+knative-serving service/autoscaler ClusterIP 10.152.183.49 &lt;none&gt; 9090/TCP,8008/TCP,8080/TCP 21h
+knative-serving service/autoscaler-bucket-00-of-01 ClusterIP 10.152.183.147 &lt;none&gt; 8080/TCP 21h
+knative-serving service/autoscaler-hpa ClusterIP 10.152.183.156 &lt;none&gt; 9090/TCP,8008/TCP 21h
+knative-serving service/controller ClusterIP 10.152.183.35 &lt;none&gt; 9090/TCP,8008/TCP 21h
+knative-serving service/domainmapping-webhook ClusterIP 10.152.183.238 &lt;none&gt; 9090/TCP,8008/TCP,443/TCP 21h
+knative-serving service/net-certmanager-controller ClusterIP 10.152.183.104 &lt;none&gt; 9090/TCP,8008/TCP 20h
+knative-serving service/net-certmanager-webhook ClusterIP 10.152.183.227 &lt;none&gt; 9090/TCP,8008/TCP,443/TCP 20h
+knative-serving service/net-istio-webhook ClusterIP 10.152.183.138 &lt;none&gt; 9090/TCP,8008/TCP,443/TCP 21h
+knative-serving service/webhook ClusterIP 10.152.183.150 &lt;none&gt; 9090/TCP,8008/TCP,443/TCP 21h
+kube-system service/kube-dns ClusterIP 10.152.183.10 &lt;none&gt; 53/UDP,53/TCP,9153/TCP 47h
+metallb-system service/webhook-service ClusterIP 10.152.183.163 &lt;none&gt; 443/TCP 25h
+
+NAMESPACE NAME DESIRED CURRENT READY UP-TO-DATE AVAILABLE NODE SELECTOR AGE
+kube-system daemonset.apps/csi-nfs-node 1 1 1 1 1 kubernetes.io/os<span class="o">=</span>linux 30h
+metallb-system daemonset.apps/speaker 1 1 1 1 1 kubernetes.io/os<span class="o">=</span>linux 25h
+
+NAMESPACE NAME READY UP-TO-DATE AVAILABLE AGE
+cert-manager deployment.apps/cert-manager 1/1 1 1 24h
+cert-manager deployment.apps/cert-manager-cainjector 1/1 1 1 24h
+cert-manager deployment.apps/cert-manager-webhook 1/1 1 1 24h
+container-registry deployment.apps/registry 1/1 1 1 23h
+default deployment.apps/helloworld-go-00001-deployment 0/0 0 0 19h
+default deployment.apps/knative-operator 1/1 1 1 22h
+default deployment.apps/operator-webhook 1/1 1 1 22h
+istio-ingress deployment.apps/istio-ingressgateway 1/1 1 1 25h
+istio-operator deployment.apps/istio-operator 1/1 1 1 25h
+istio-system deployment.apps/istiod 1/1 1 1 29h
+knative-serving deployment.apps/activator 1/1 1 1 21h
+knative-serving deployment.apps/autoscaler 1/1 1 1 21h
+knative-serving deployment.apps/autoscaler-hpa 1/1 1 1 21h
+knative-serving deployment.apps/controller 1/1 1 1 21h
+knative-serving deployment.apps/domain-mapping 1/1 1 1 21h
+knative-serving deployment.apps/domainmapping-webhook 1/1 1 1 21h
+knative-serving deployment.apps/net-certmanager-controller 1/1 1 1 20h
+knative-serving deployment.apps/net-certmanager-webhook 1/1 1 1 20h
+knative-serving deployment.apps/net-istio-controller 1/1 1 1 21h
+knative-serving deployment.apps/net-istio-webhook 1/1 1 1 21h
+knative-serving deployment.apps/webhook 1/1 1 1 21h
+kube-system deployment.apps/coredns 1/1 1 1 47h
+kube-system deployment.apps/csi-nfs-controller 1/1 1 1 30h
+kube-system deployment.apps/hostpath-provisioner 1/1 1 1 23h
+metallb-system deployment.apps/controller 1/1 1 1 25h
+
+NAMESPACE NAME DESIRED CURRENT READY AGE
+cert-manager replicaset.apps/cert-manager-5d6bc46969 1 1 1 24h
+cert-manager replicaset.apps/cert-manager-cainjector-7d8b8bb6b8 1 1 1 24h
+cert-manager replicaset.apps/cert-manager-webhook-5c5c5bb457 1 1 1 24h
+container-registry replicaset.apps/registry-9865b655c 1 1 1 23h
+default replicaset.apps/helloworld-go-00001-deployment-6466c46f55 0 0 0 19h
+default replicaset.apps/knative-operator-7b7d4bbc7d 1 1 1 22h
+default replicaset.apps/operator-webhook-74d9489bf8 1 1 1 22h
+istio-ingress replicaset.apps/istio-ingressgateway-77b5b78896 0 0 0 25h
+istio-ingress replicaset.apps/istio-ingressgateway-7f5958c7d9 1 1 1 25h
+istio-operator replicaset.apps/istio-operator-79d6df8f9d 1 1 1 25h
+istio-system replicaset.apps/istiod-57c965889 1 1 1 29h
+knative-serving replicaset.apps/activator-658c5747b 1 1 1 21h
+knative-serving replicaset.apps/autoscaler-f989fbf86 1 1 1 21h
+knative-serving replicaset.apps/autoscaler-hpa-5d7668d747 1 1 1 21h
+knative-serving replicaset.apps/controller-64b9dcc975 1 1 1 21h
+knative-serving replicaset.apps/domain-mapping-7b87f895b6 1 1 1 21h
+knative-serving replicaset.apps/domainmapping-webhook-54cddcb594 1 1 1 21h
+knative-serving replicaset.apps/net-certmanager-controller-575898d58 1 1 1 20h
+knative-serving replicaset.apps/net-certmanager-webhook-7cd899c855 1 1 1 20h
+knative-serving replicaset.apps/net-istio-controller-84cb8b59fb 1 1 1 21h
+knative-serving replicaset.apps/net-istio-webhook-8d785b78d 1 1 1 21h
+knative-serving replicaset.apps/webhook-7698bcf68f 1 1 1 21h
+kube-system replicaset.apps/coredns-7745f9f87f 1 1 1 47h
+kube-system replicaset.apps/csi-nfs-controller-6f844cdc89 1 1 1 30h
+kube-system replicaset.apps/hostpath-provisioner-58694c9f4b 1 1 1 23h
+metallb-system replicaset.apps/controller-8467d88d69 1 1 1 25h
+
+NAMESPACE NAME REFERENCE TARGETS MINPODS MAXPODS REPLICAS AGE
+istio-ingress horizontalpodautoscaler.autoscaling/istio-ingressgateway Deployment/istio-ingressgateway &lt;unknown&gt;/80% 1 5 1 25h
+istio-system horizontalpodautoscaler.autoscaling/istiod Deployment/istiod &lt;unknown&gt;/80% 1 5 1 29h
+knative-serving horizontalpodautoscaler.autoscaling/activator Deployment/activator &lt;unknown&gt;/100% 1 20 1 21h
+knative-serving horizontalpodautoscaler.autoscaling/webhook Deployment/webhook &lt;unknown&gt;/100% 1 5 1 21h
+
+NAMESPACE NAME LATESTCREATED LATESTREADY READY REASON
+default configuration.serving.knative.dev/helloworld-go helloworld-go-00001 helloworld-go-00001 True
+
+NAMESPACE NAME CONFIG NAME K8S SERVICE NAME GENERATION READY REASON ACTUAL REPLICAS DESIRED REPLICAS
+default revision.serving.knative.dev/helloworld-go-00001 helloworld-go 1 True 0 0
+
+NAMESPACE NAME URL READY REASON
+default route.serving.knative.dev/helloworld-go https://helloworld-go.default.s.taakcloud.com True
+
+NAMESPACE NAME URL LATESTCREATED LATESTREADY READY REASON
+default service.serving.knative.dev/helloworld-go https://helloworld-go.default.s.taakcloud.com helloworld-go-00001 helloworld-go-00001 True
+
+NAMESPACE NAME URL READY REASON
+default domainmapping.serving.knative.dev/hello.taakcloud.com https://hello.taakcloud.com True</code></pre></figure>
+
+
+</details>]]></content><author><name></name></author><category term="blog" /><summary type="html"><![CDATA[Complete guide to self-host the Knative platform]]></summary></entry><entry><title type="html">Web Push Notification</title><link href="https://docs.taakcloud.com/products/web-push-notification/" rel="alternate" type="text/html" title="Web Push Notification" /><published>2023-01-24T08:08:00+00:00</published><updated>2023-01-24T08:08:00+00:00</updated><id>https://docs.taakcloud.com/products/web-push-notification</id><content type="html" xml:base="https://docs.taakcloud.com/products/web-push-notification/"><![CDATA[<p>Send web push notification with ease and zero cost on scale.</p>
+
+<h2 id="prerequisites">Prerequisites</h2>
+
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" checked="checked" />Select your app/workspace, see <a href="/getting-started/create-app/">Create app</a></li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" checked="checked" />Get your API Key, see <a href="/getting-started/generate-api-key/">Generate API Key</a></li>
+</ul>
+
+<h2 id="taak-sdk-js">Taak SDK JS</h2>
+
+<p>We use <a href="https://github.com/taakcloud/taak-sdk-js" target="_blank" rel="noopener noreferrer">Taak SDK JS <i class="fa-solid fa-arrow-up-right-from-square"></i></a> as client side library. Full source code is available at <a href="https://github.com/taakcloud/taak-web-push-example" target="_blank" rel="noopener noreferrer">here <i class="fa-solid fa-arrow-up-right-from-square"></i></a></p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">npm i taak-sdk</code></pre></figure>
+
+<p><br /></p>
+
+<h3 id="check-permission">Check permission</h3>
+
+<p>Following code is for React library, but basically must work in both TypeScript and JavaScript projects.</p>
+<details open=""><summary>Check if permission given</summary>
+
+<figure class="highlight"><pre><code class="language-ts" data-lang="ts">  <span class="kd">const</span> <span class="nx">checkIfPermissionGiven</span> <span class="o">=</span> <span class="k">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="na">res</span><span class="p">:</span> <span class="nx">TaakResponse</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">taakSdkClient</span><span class="p">.</span><span class="nx">checkIfPermissionGiven</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">res</span><span class="p">.</span><span class="nx">status</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">res</span><span class="p">.</span><span class="nx">data</span> <span class="o">===</span> <span class="dl">'</span><span class="s1">denied</span><span class="dl">'</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">presentToast</span><span class="p">({</span>
+          <span class="na">message</span><span class="p">:</span> <span class="s2">`Permission denied, you need to unblock </span><span class="p">${</span><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">origin</span><span class="p">}</span><span class="s2"> in your browser to receive notifications.`</span><span class="p">,</span>
+          <span class="na">duration</span><span class="p">:</span> <span class="mi">3000</span><span class="p">,</span>
+          <span class="na">color</span><span class="p">:</span> <span class="dl">'</span><span class="s1">danger</span><span class="dl">'</span>
+        <span class="p">})</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nx">presentToast</span><span class="p">({</span> <span class="na">message</span><span class="p">:</span> <span class="nx">res</span><span class="p">.</span><span class="nx">error</span><span class="p">,</span> <span class="na">color</span><span class="p">:</span> <span class="dl">'</span><span class="s1">danger</span><span class="dl">'</span><span class="p">,</span> <span class="na">duration</span><span class="p">:</span> <span class="mi">3000</span> <span class="p">})</span>
+      <span class="p">}</span>
+      <span class="nx">setWebPushEnabled</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
+    <span class="p">}</span>
+  <span class="p">}</span></code></pre></figure>
+
+</details>
+<p class="right"><a href="https://github.com/taakcloud/taak-web-push-example/blob/main/src/components/WebPushToggle.tsx#L19-L33" target="_blank" rel="noopener noreferrer">WebPushToggle.tsx <i class="fa-solid fa-arrow-up-right-from-square"></i></a></p>
+
+<h3 id="subscribe">Subscribe</h3>
+
+<details open=""><summary>Check if subscribed</summary>
+
+<figure class="highlight"><pre><code class="language-ts" data-lang="ts">  <span class="kd">const</span> <span class="nx">checkIfSubscribed</span> <span class="o">=</span> <span class="k">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">setInprogress</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
+    <span class="kd">const</span> <span class="na">res</span><span class="p">:</span> <span class="nx">TaakResponse</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">taakSdkClient</span><span class="p">.</span><span class="nx">checkIfSubscribed</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">res</span><span class="p">.</span><span class="nx">status</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">presentToast</span><span class="p">({</span> <span class="na">message</span><span class="p">:</span> <span class="nx">res</span><span class="p">.</span><span class="nx">error</span><span class="p">,</span> <span class="na">color</span><span class="p">:</span> <span class="dl">'</span><span class="s1">danger</span><span class="dl">'</span><span class="p">,</span> <span class="na">duration</span><span class="p">:</span> <span class="mi">3000</span> <span class="p">})</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="k">await</span> <span class="nx">subscribe</span><span class="p">(</span><span class="nx">res</span><span class="p">.</span><span class="nx">data</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="nx">setInprogress</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
+  <span class="p">}</span></code></pre></figure>
+
+</details>
+<p class="right"><a href="https://github.com/taakcloud/taak-web-push-example/blob/main/src/components/WebPushSubscribeButton.tsx#L18-L27" target="_blank" rel="noopener noreferrer">WebPushSubscribeButton.tsx <i class="fa-solid fa-arrow-up-right-from-square"></i></a></p>
+
+<details open=""><summary>Subscribe</summary>
+
+<figure class="highlight"><pre><code class="language-ts" data-lang="ts">  <span class="kd">const</span> <span class="nx">subscribe</span> <span class="o">=</span> <span class="k">async</span> <span class="p">(</span><span class="nx">subscription</span><span class="p">:</span> <span class="nx">PushSubscription</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">subscriptionObject</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">subscription</span><span class="p">))</span>
+    <span class="kd">const</span> <span class="na">cmd</span><span class="p">:</span> <span class="nx">WebPushSubscribeCommand</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="nx">userId</span><span class="p">,</span>
+      <span class="na">deviceId</span><span class="p">:</span> <span class="s2">`</span><span class="p">${</span><span class="nx">osName</span><span class="p">}</span><span class="s2">::</span><span class="p">${</span><span class="nx">browserName</span><span class="p">}</span><span class="s2">::</span><span class="p">${</span><span class="nx">browserVersion</span><span class="p">}</span><span class="s2">`</span><span class="p">,</span>
+      <span class="na">endpoint</span><span class="p">:</span> <span class="nx">subscription</span><span class="p">.</span><span class="nx">endpoint</span><span class="p">,</span>
+      <span class="na">key</span><span class="p">:</span> <span class="nx">subscriptionObject</span><span class="p">.</span><span class="nx">keys</span><span class="p">.</span><span class="nx">p256dh</span><span class="p">,</span>
+      <span class="na">auth</span><span class="p">:</span> <span class="nx">subscriptionObject</span><span class="p">.</span><span class="nx">keys</span><span class="p">.</span><span class="nx">auth</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="kd">const</span> <span class="na">res</span><span class="p">:</span> <span class="nx">TaakResponse</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">taakSdkClient</span><span class="p">.</span><span class="nx">subscribeWebPush</span><span class="p">(</span><span class="nx">cmd</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">res</span><span class="p">.</span><span class="nx">status</span> <span class="o">===</span> <span class="mi">201</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">presentToast</span><span class="p">({</span> <span class="na">message</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Success subscription</span><span class="dl">'</span><span class="p">,</span> <span class="na">color</span><span class="p">:</span> <span class="dl">'</span><span class="s1">success</span><span class="dl">'</span><span class="p">,</span> <span class="na">duration</span><span class="p">:</span> <span class="mi">3000</span> <span class="p">})</span>
+      <span class="nx">onSuccess</span><span class="p">(</span><span class="nx">res</span><span class="p">.</span><span class="nx">data</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="k">else</span>
+      <span class="nx">presentToast</span><span class="p">({</span> <span class="na">message</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Error subscribing </span><span class="dl">'</span> <span class="o">+</span> <span class="nx">res</span><span class="p">.</span><span class="nx">status</span><span class="p">,</span> <span class="na">color</span><span class="p">:</span> <span class="dl">'</span><span class="s1">danger</span><span class="dl">'</span><span class="p">,</span> <span class="na">duration</span><span class="p">:</span> <span class="mi">3000</span> <span class="p">})</span>
+  <span class="p">}</span></code></pre></figure>
+
+</details>
+<p class="right"><a href="https://github.com/taakcloud/taak-web-push-example/blob/main/src/components/WebPushSubscribeButton.tsx#L29-L45" target="_blank" rel="noopener noreferrer">WebPushSubscribeButton.tsx <i class="fa-solid fa-arrow-up-right-from-square"></i></a></p>
+
+<h3 id="send">Send</h3>
+
+<details open=""><summary>Send web push</summary>
+
+<figure class="highlight"><pre><code class="language-ts" data-lang="ts">  <span class="kd">const</span> <span class="nx">sendTest</span> <span class="o">=</span> <span class="k">async</span> <span class="p">(</span><span class="nx">item</span><span class="p">:</span> <span class="nx">WebPushDTO</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">setSending</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
+    <span class="kd">const</span> <span class="na">cmd</span><span class="p">:</span> <span class="nx">WebPushSendCommand</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="na">payload</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Hello World</span><span class="dl">'</span><span class="p">,</span>
+      <span class="na">publicId</span><span class="p">:</span> <span class="nx">item</span><span class="p">.</span><span class="nx">publicId</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="kd">const</span> <span class="na">res</span><span class="p">:</span> <span class="nx">TaakResponse</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">taakSdkClient</span><span class="p">.</span><span class="nx">sendWebPush</span><span class="p">(</span><span class="nx">cmd</span><span class="p">)</span>
+    <span class="nx">presentToast</span><span class="p">({</span> <span class="na">message</span><span class="p">:</span> <span class="s2">`Success sending push with status </span><span class="p">${</span><span class="nx">res</span><span class="p">.</span><span class="nx">status</span><span class="p">}</span><span class="s2">`</span><span class="p">,</span> <span class="na">duration</span><span class="p">:</span> <span class="mi">3000</span> <span class="p">})</span>
+    <span class="nx">setSending</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
+  <span class="p">}</span></code></pre></figure>
+
+</details>
+<p class="right"><a href="https://github.com/taakcloud/taak-web-push-example/blob/main/src/components/WebPushSubscriptionList.tsx#L28-L37" target="_blank" rel="noopener noreferrer">WebPushSubscriptionList.tsx <i class="fa-solid fa-arrow-up-right-from-square"></i></a></p>
+
+<h3 id="list">List</h3>
+
+<details open=""><summary>Subscription list</summary>
+
+<figure class="highlight"><pre><code class="language-ts" data-lang="ts">  <span class="kd">const</span> <span class="nx">fetchItems</span> <span class="o">=</span> <span class="k">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">setInprogress</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
+    <span class="kd">const</span> <span class="na">res</span><span class="p">:</span> <span class="nx">TaakResponse</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">taakSdkClient</span><span class="p">.</span><span class="nx">getWebPushesByUserId</span><span class="p">(</span><span class="nx">userId</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">res</span><span class="p">.</span><span class="nx">status</span> <span class="o">===</span> <span class="mi">200</span><span class="p">)</span>
+      <span class="nx">setItems</span><span class="p">(</span><span class="nx">res</span><span class="p">.</span><span class="nx">data</span><span class="p">)</span>
+    <span class="nx">setInprogress</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
+  <span class="p">}</span></code></pre></figure>
+
+</details>
+<p class="right"><a href="https://github.com/taakcloud/taak-web-push-example/blob/main/src/components/WebPushSubscriptionList.tsx#L20-L26" target="_blank" rel="noopener noreferrer">WebPushSubscriptionList.tsx <i class="fa-solid fa-arrow-up-right-from-square"></i></a></p>
+
+<h3 id="delete">Delete</h3>
+
+<details open=""><summary>Delete an subscription</summary>
+
+<figure class="highlight"><pre><code class="language-ts" data-lang="ts">  <span class="kd">const</span> <span class="nx">deleteItem</span> <span class="o">=</span> <span class="k">async</span> <span class="p">(</span><span class="nx">item</span><span class="p">:</span> <span class="nx">WebPushDTO</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">setDeleting</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
+    <span class="kd">const</span> <span class="na">res</span><span class="p">:</span> <span class="nx">TaakResponse</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">taakSdkClient</span><span class="p">.</span><span class="nx">deleteWebPush</span><span class="p">(</span><span class="nx">item</span><span class="p">.</span><span class="nx">publicId</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">res</span><span class="p">.</span><span class="nx">status</span> <span class="o">===</span> <span class="mi">204</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">presentToast</span><span class="p">({</span> <span class="na">message</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Success deleting subscription</span><span class="dl">'</span><span class="p">,</span> <span class="na">duration</span><span class="p">:</span> <span class="mi">3000</span> <span class="p">})</span>
+      <span class="k">await</span> <span class="nx">fetchItems</span><span class="p">()</span>
+    <span class="p">}</span>
+    <span class="nx">setDeleting</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
+  <span class="p">}</span></code></pre></figure>
+
+</details>
+<p class="right"><a href="https://github.com/taakcloud/taak-web-push-example/blob/main/src/components/WebPushSubscriptionList.tsx#L39-L47" target="_blank" rel="noopener noreferrer">WebPushSubscriptionList.tsx <i class="fa-solid fa-arrow-up-right-from-square"></i></a></p>
+
+<h3 id="test-suite">Test suite</h3>
+
+<p><a href="https://github.com/taakcloud/taak-sdk-js/blob/main/src/web-push/index.test.ts" target="_blank" rel="noopener noreferrer">index.test.ts <i class="fa-solid fa-arrow-up-right-from-square"></i></a></p>]]></content><author><name></name></author><category term="products" /><summary type="html"><![CDATA[Web push notification with ease on scale]]></summary></entry><entry><title type="html">Generate API Key</title><link href="https://docs.taakcloud.com/getting-started/generate-api-key/" rel="alternate" type="text/html" title="Generate API Key" /><published>2023-01-24T00:00:00+00:00</published><updated>2023-01-24T00:00:00+00:00</updated><id>https://docs.taakcloud.com/getting-started/generate-api-key</id><content type="html" xml:base="https://docs.taakcloud.com/getting-started/generate-api-key/"><![CDATA[<p>API keys identifies your app and helps to check quota and access.</p>
+
+<h2 id="credentials-page">Credentials page</h2>
+
+<p><a href="https://taakcloud.com/apps/credentials" target="_blank" rel="noopener noreferrer">https://taakcloud.com/apps/credentials <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+ is for managing credentials.</p>
+
+<h2 id="generate-option">Generate option</h2>
+
+<p>Generate option will be visiable by clicking <em>+ CREATE CREDENTIALS</em> from top menu right:</p>
+
+<p class="tofigure"><img src="/assets/img/generate-api-key/generate-api-key-option.png" alt="Generate option" title="Generate option" /></p>
+
+<h2 id="generate-button">Generate button</h2>
+
+<p>API Key will be generated by clicking <em>generate</em> button:</p>
+
+<p class="tofigure"><img src="/assets/img/generate-api-key/generate-button.png" alt="Generate button" title="Generate button" /></p>
+
+<p>That’s all, new API Key generated.</p>]]></content><author><name></name></author><category term="getting-started" /><summary type="html"><![CDATA[Generate your first API Key]]></summary></entry><entry><title type="html">Create App</title><link href="https://docs.taakcloud.com/getting-started/create-app/" rel="alternate" type="text/html" title="Create App" /><published>2023-01-22T08:18:11+00:00</published><updated>2023-01-22T08:18:11+00:00</updated><id>https://docs.taakcloud.com/getting-started/create-app</id><content type="html" xml:base="https://docs.taakcloud.com/getting-started/create-app/"><![CDATA[<p>Apps are like workspaces and everything will work <em>isolated</em> based on <strong>current</strong> selected app.</p>
+
+<h2 id="step-1">Step 1</h2>
+
+<p>Go to <a href="https://taakcloud.com/apps/" target="_blank">https://taakcloud.com/apps <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+ first.</p>
+
+<h2 id="step-2">Step 2</h2>
+
+<p>After login you should be able te see following screenshot:</p>
+
+<p class="tofigure"><img src="/assets/img/create-app/screen1.png" alt="New app button" title="Apps page" /></p>
+
+<p>and select <em>+ New app</em> button.</p>
+
+<h2 id="step-3">Step 3</h2>
+
+<p>Type a name, and click <em>save</em> button.</p>
+
+<p>Tha’s all, new app created:</p>
+
+<p class="tofigure"><img src="/assets/img/create-app/screen2.png" alt="Success screen" title="App selected" /></p>]]></content><author><name></name></author><category term="getting-started" /><summary type="html"><![CDATA[Create your first App]]></summary></entry></feed>
